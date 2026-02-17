@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taming.io 家具リスト完全版</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #4CAF50;
+            --table-header-bg: #333;
+            --table-row-even: #252525;
+            --table-row-hover: #3a3a3a;
+            --border-color: #444;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            color: var(--accent-color);
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--table-row-even);
+        }
+
+        tr:hover {
+            background-color: var(--table-row-hover);
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .type-interactive { background-color: #FF9800; } /* Orange */
+        .type-storage { background-color: #2196F3; } /* Blue */
+        .type-cleaning { background-color: #00BCD4; } /* Light Blue */
+        .type-decorative { background-color: #9C27B0; } /* Purple */
+        .type-floor { background-color: #795548; } /* Brown */
+        .type-wall { background-color: #607D8B; } /* Grey */
+        .type-waste { background-color: #555; } /* Dark Grey */
+
+        .cost-buy { color: #FFD700; font-weight: bold; } /* Gold */
+        .cost-craft { color: #8BC34A; } /* Light Green */
+        
+        .note { font-size: 0.9em; color: #aaa; }
+
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr { border: 1px solid #444; margin-bottom: 10px; }
+            td {
+                border: none;
+                position: relative;
+                padding-left: 50%;
+            }
+            td:before {
+                position: absolute;
+                top: 12px;
+                left: 15px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: bold;
+                color: var(--accent-color);
+            }
+            td:nth-of-type(1):before { content: "分類"; }
+            td:nth-of-type(2):before { content: "名前"; }
+            td:nth-of-type(3):before { content: "効果・説明"; }
+            td:nth-of-type(4):before { content: "購入コスト (GA)"; }
+            td:nth-of-type(5):before { content: "クラフト (設計図+素材)"; }
+            td:nth-of-type(6):before { content: "その他・備考"; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Taming.io ハウジング家具リスト</h1>
+
+    <div class="controls">
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="名前や効果で検索...">
+    </div>
+
+    <table id="furnitureTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">分類</th>
+                <th onclick="sortTable(1)">名前 (英語/日本語)</th>
+                <th onclick="sortTable(2)">効果・説明</th>
+                <th onclick="sortTable(3)">購入コスト (金リンゴ)</th>
+                <th onclick="sortTable(4)">クラフト (設計図 + 必要素材)</th>
+                <th>その他・備考</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 食料関連 -->
+            <tr>
+                <td><span class="type-badge type-interactive">餌やり</span></td>
+                <td><b>Red Pet Bowl</b><br>赤いペットボウル</td>
+                <td>ペットに餌を与える。最大4個のリンゴ箱を収納可能。</td>
+                <td class="cost-buy">290 GA</td>
+                <td class="cost-craft">125 GA + <br>木x1, 草x1, 水x1</td>
+                <td>餌は1日で腐る。腐るとペットが毒状態になる。</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-interactive">餌やり</span></td>
+                <td><b>Trough</b><br>飼い葉桶</td>
+                <td>ペットに餌を与える。最大8個のリンゴ箱を収納可能。</td>
+                <td class="cost-buy">1070 GA</td>
+                <td class="cost-craft">525 GA + <br>木x3, 草x5, 水x3</td>
+                <td>ボウルより餌が長持ちする。</td>
+            </tr>
+            
+            <!-- 掃除関連 -->
+            <tr>
+                <td><span class="type-badge type-cleaning">掃除</span></td>
+                <td><b>Sponge</b><br>スポンジ</td>
+                <td>ペットを洗うための道具。</td>
+                <td class="cost-buy">140 GA</td>
+                <td class="cost-craft">50 GA + <br>草x1</td>
+                <td>使い捨てではない(永久)。</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-cleaning">掃除</span></td>
+                <td><b>Soap</b><br>石鹸</td>
+                <td>ペットを洗うための道具。</td>
+                <td class="cost-buy">230 GA</td>
+                <td class="cost-craft">100 GA + <br>草x1, 灰x1</td>
+                <td>使い捨てではない(永久)。</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-cleaning">掃除</span></td>
+                <td><b>Sink</b><br>シンク</td>
+                <td>ペットを洗う場所。</td>
+                <td class="cost-buy">290 GA</td>
+                <td class="cost-craft">125 GA + <br>石x1, 砂x1, 灰x1</td>
+                <td>使用時に水の木箱(Water Crate)を1つ消費。</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-cleaning">掃除</span></td>
+                <td><b>Shower</b><br>シャワー</td>
+                <td>ペットを洗う場所。排水溝(Drain)が必要。</td>
+                <td class="cost-buy">200 GA</td>
+                <td class="cost-craft">100 GA + <br>石x1, 氷x1</td>
+                <td>使用時に水の木箱を消費。</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-cleaning">掃除</span></td>
+                <td><b>Drain</b><br>排水溝</td>
+                <td>シャワーとセットで使用。</td>
+                <td class="cost-buy">350 GA</td>
+                <td class="cost-craft">175 GA + <br>石x1, 腐敗物x1</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-cleaning">掃除</span></td>
+                <td><b>Classic Shower</b><br>クラシックシャワー</td>
+                <td>ペットを洗う場所。</td>
+                <td class="cost-buy">530 GA</td>
+                <td class="cost-craft">250 GA + <br>石x2, 砂x2, 氷x1, 灰x1</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-cleaning">掃除</span></td>
+                <td><b>Wide Sink</b><br>ワイドシンク</td>
+                <td>ペットを洗う場所。</td>
+                <td class="cost-buy">530 GA</td>
+                <td class="cost-craft">250 GA + <br>石x2, 砂x2, 灰x2</td>
+                <td></td>
+            </tr>
+
+            <!-- 機能付き家具 -->
+            <tr>
+                <td><span class="type-badge type-interactive">機能</span></td>
+                <td><b>Wisp Jar</b><br>ウィスプの瓶</td>
+                <td>8時間ごとにMote(ブーストリング素材)を自動収集。</td>
+                <td class="cost-buy">500 GA</td>
+                <td class="cost-craft">250 GA + <br>草x1, 砂x2, 塵(Dust)x2</td>
+                <td>稼働には塵の木箱(Crate of Dust)が必要。</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-interactive">機能</span></td>
+                <td><b>Alchemy Table</b><br>錬金術テーブル</td>
+                <td>将来的な機能(毒の治療など)が示唆されている。</td>
+                <td class="cost-buy">1580 GA</td>
+                <td class="cost-craft">775 GA + <br>木x6, 氷x3, 塵x3, 金x3, 腐敗x3</td>
+                <td>高難易度クラフト。</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-interactive">機能</span></td>
+                <td><b>Jukebox</b><br>ジュークボックス</td>
+                <td>家の中の音楽を変える(ダンスフロア化)。</td>
+                <td class="cost-buy">1130 GA</td>
+                <td class="cost-craft">550 GA + <br>砂x2, 氷x2, 灰x2, 塵x3</td>
+                <td></td>
+            </tr>
+
+            <!-- 排泄物・骨 (システム上は家具扱い) -->
+            <tr>
+                <td><span class="type-badge type-waste">汚物</span></td>
+                <td><b>Poop / Big / Giga</b><br>フン</td>
+                <td>蓄積するとペットが「悪臭」状態になる(経験値半減)。</td>
+                <td>-</td>
+                <td>(ペットが排出)</td>
+                <td>6ポイントで悪臭発生。<br>通常=1pt, Big=2pt, Giga=3pt</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-waste">残骸</span></td>
+                <td><b>Bone / Ribs / Cage</b><br>骨</td>
+                <td>蓄積するとペットが「憂鬱」状態になる。</td>
+                <td>-</td>
+                <td>(ペットの死)</td>
+                <td>3ポイントで憂鬱発生。</td>
+            </tr>
+
+            <!-- 床 -->
+            <tr>
+                <td><span class="type-badge type-floor">床</span></td>
+                <td><b>Floor Tiles</b><br>床タイル各種</td>
+                <td>家の面積を広げる。基本の板、石、タイル、黒曜石など。</td>
+                <td class="cost-buy">50〜200 GA<br>(購入毎に+15GA)</td>
+                <td>-</td>
+                <td>初期24枚所持。<br>光沢系や黒曜石は100GA〜。</td>
+            </tr>
+
+            <!-- 壁 -->
+            <tr>
+                <td><span class="type-badge type-wall">壁</span></td>
+                <td><b>Walls</b><br>壁各種</td>
+                <td>家の外壁。色付き木材、石など。</td>
+                <td class="cost-buy">140〜170 GA</td>
+                <td class="cost-craft">50〜75 GA + <br>木+染料素材(草/氷/灰など)</td>
+                <td>デフォルトの木の壁は無料。</td>
+            </tr>
+
+            <!-- 装飾：ベッド -->
+            <tr>
+                <td><span class="type-badge type-decorative">家具</span></td>
+                <td><b>Beds</b><br>ベッド各種</td>
+                <td>装飾用。藁、各色ベッド、石のベッドなど。</td>
+                <td class="cost-buy">200〜450 GA</td>
+                <td class="cost-craft">75〜175 GA + <br>木+素材</td>
+                <td>藁ベッド(Straw Bed)は初期所持。<br>色付きは素材コスト増。</td>
+            </tr>
+
+            <!-- 装飾：テーブル -->
+            <tr>
+                <td><span class="type-badge type-decorative">家具</span></td>
+                <td><b>Tables</b><br>テーブル各種</td>
+                <td>装飾用。小さい机、円卓、石のテーブルなど。</td>
+                <td class="cost-buy">110〜2030 GA</td>
+                <td class="cost-craft">50〜1000 GA + <br>各種素材</td>
+                <td>黒アルミテーブル(Black Aluminium)は最高級品(金/塵が必要)。</td>
+            </tr>
+
+            <!-- 装飾：椅子 -->
+            <tr>
+                <td><span class="type-badge type-decorative">家具</span></td>
+                <td><b>Chairs</b><br>椅子各種</td>
+                <td>装飾用。スツール、アームチェア、オフィスチェアなど。</td>
+                <td class="cost-buy">110〜410 GA</td>
+                <td class="cost-craft">50〜200 GA + <br>木/草/石など</td>
+                <td></td>
+            </tr>
+
+            <!-- 装飾：収納 -->
+            <tr>
+                <td><span class="type-badge type-storage">収納</span></td>
+                <td><b>Storage</b><br>棚・箪笥</td>
+                <td>本棚、食器棚、ドレッサーなど。</td>
+                <td class="cost-buy">170〜380 GA</td>
+                <td class="cost-craft">75〜125 GA + <br>木/石/骨/塵など</td>
+                <td>実際にアイテムを収納する機能は(現時点では)ない装飾品が多い。</td>
+            </tr>
+
+            <!-- その他装飾 -->
+            <tr>
+                <td><span class="type-badge type-decorative">装飾</span></td>
+                <td><b>Statues</b><br>像</td>
+                <td>墓石、ダミー、騎士の鎧、トーテム、各種像。</td>
+                <td class="cost-buy">530〜950 GA</td>
+                <td class="cost-craft">250〜475 GA + <br>石/骨/金など</td>
+                <td>多くは石(Stone)と骨(Bones)が必要。</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-decorative">装飾</span></td>
+                <td><b>Paintings</b><br>絵画</td>
+                <td>山、川、溺れる絵(2部作)、肖像画など。</td>
+                <td class="cost-buy">260〜740 GA</td>
+                <td class="cost-craft">125〜350 GA + <br>木/紙/金など</td>
+                <td>壁に設置するタイプ。</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge type-decorative">小物</span></td>
+                <td><b>Misc Items</b><br>小物類</td>
+                <td>時計、電話、PC、文房具、ぬいぐるみ(Plushies)など。</td>
+                <td class="cost-buy">110〜1010 GA</td>
+                <td class="cost-craft">50〜500 GA + <br>各種素材</td>
+                <td>トイレ(Toilet)に長く座ると大量のフンが出る隠し要素あり。</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function filterTable() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("furnitureTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                // 名前(1)と効果(2)の列を検索対象にする
+                var tdName = tr[i].getElementsByTagName("td")[1];
+                var tdEffect = tr[i].getElementsByTagName("td")[2];
+                
+                if (tdName || tdEffect) {
+                    var txtName = tdName.textContent || tdName.innerText;
+                    var txtEffect = tdEffect.textContent || tdEffect.innerText;
+                    
+                    if (txtName.toUpperCase().indexOf(filter) > -1 || txtEffect.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("furnitureTable");
+            switching = true;
+            dir = "asc"; 
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    var xContent = x.textContent.toLowerCase();
+                    var yContent = y.textContent.toLowerCase();
+
+                    // 数値ソート（コスト列の場合）
+                    if (n === 3) {
+                        xContent = parseFloat(xContent.replace(/[^0-9]/g, '')) || 0;
+                        yContent = parseFloat(yContent.replace(/[^0-9]/g, '')) || 0;
+                    }
+
+                    if (dir == "asc") {
+                        if (xContent > yContent) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (xContent < yContent) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount ++; 
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>
