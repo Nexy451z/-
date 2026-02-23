@@ -44,7 +44,7 @@
   }
 
   .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 24px;
   }
@@ -73,7 +73,7 @@
     align-items: flex-start;
   }
   .sidebar {
-    width: 320px;
+    width: 280px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -82,6 +82,12 @@
   .main-content {
     flex-grow: 1;
     min-width: 0;
+  }
+
+  .matchup-grids {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
   }
 
   /* Box Styles */
@@ -126,32 +132,10 @@
     outline: none;
     box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
   }
-  .search-bar {
-    max-width: 300px;
-  }
-
-  /* Multiplier Result Box */
-  .result-box {
-    background-color: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 24px;
-    text-align: center;
-  }
-  .result-label {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-    font-weight: 600;
-  }
-  .result-value {
-    font-size: 36px;
-    font-weight: 600;
-  }
 
   /* Tables */
   .table-container {
-    overflow-x: auto;
+    overflow-y: auto;
     max-height: 600px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -179,10 +163,11 @@
     border-bottom: none;
   }
   tr:hover td {
-    background-color: var(--bg-color);
+    background-color: var(--box-bg);
+    filter: brightness(0.96);
   }
 
-  /* Type Badges (GitHub Label style) */
+  /* Type Badges */
   .type-badge {
     display: inline-block;
     padding: 2px 10px;
@@ -235,15 +220,18 @@
 
   .mt-4 { margin-top: 24px; }
 
+  @media (max-width: 1024px) {
+    .matchup-grids {
+      grid-template-columns: 1fr;
+    }
+  }
+
   @media (max-width: 768px) {
     .layout-grid {
       flex-direction: column;
     }
     .sidebar {
       width: 100%;
-    }
-    .search-bar {
-      max-width: 100%;
     }
   }
 </style>
@@ -252,53 +240,70 @@
 
 <div class="container">
   <div class="header">
-    <h1>Taming.io Type & Damage Simulator</h1>
-    <p>動物のタイプ相性とダメージ倍率を計算</p>
+    <h1>Taming.io Type Matchup List</h1>
+    <p>動物を1体選択し、攻撃時・防御時それぞれの全動物に対する相性を確認できます</p>
   </div>
 
   <div class="layout-grid">
-    <!-- Sidebar: Controls & Result -->
+    <!-- Sidebar: Controls -->
     <div class="sidebar">
       <div class="box">
-        <h3>Attacker</h3>
-        <select id="attacker-select"></select>
+        <h3>Select Animal</h3>
+        <select id="animal-select"></select>
         <div class="mt-4"></div>
-        <div id="attacker-types" class="type-container"></div>
+        <div id="animal-types" class="type-container"></div>
       </div>
 
       <div class="box">
-        <h3>Defender</h3>
-        <select id="defender-select"></select>
-        <div class="mt-4"></div>
-        <div id="defender-types" class="type-container"></div>
-      </div>
-
-      <div class="result-box">
-        <div class="result-label">Damage Multiplier</div>
-        <div class="result-value" id="damage-multiplier">1x</div>
+        <h3>Filter</h3>
+        <input type="text" id="search-input" class="search-bar" placeholder="Filter by animal name...">
       </div>
     </div>
 
-    <!-- Main Content: Matchup Table -->
+    <!-- Main Content: Matchup Tables -->
     <div class="main-content">
-      <div class="box">
-        <div class="box-header">
-          <h3>Matchups for <span id="selected-attacker-name"></span></h3>
-          <input type="text" id="search-input" class="search-bar" placeholder="Filter by defender name...">
+      <div class="matchup-grids">
+        
+        <!-- Attack Table -->
+        <div class="box">
+          <div class="box-header">
+            <h3>Attacking (vs Defender)</h3>
+          </div>
+          <div class="table-container">
+            <table id="attack-table">
+              <thead>
+                <tr>
+                  <th>Defender</th>
+                  <th>Types</th>
+                  <th>Multiplier</th>
+                </tr>
+              </thead>
+              <tbody id="attack-tbody">
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="table-container">
-          <table id="matchup-table">
-            <thead>
-              <tr>
-                <th>Defender</th>
-                <th>Types</th>
-                <th>Multiplier</th>
-              </tr>
-            </thead>
-            <tbody id="matchup-tbody">
-            </tbody>
-          </table>
+
+        <!-- Defense Table -->
+        <div class="box">
+          <div class="box-header">
+            <h3>Defending (vs Attacker)</h3>
+          </div>
+          <div class="table-container">
+            <table id="defense-table">
+              <thead>
+                <tr>
+                  <th>Attacker</th>
+                  <th>Types</th>
+                  <th>Multiplier</th>
+                </tr>
+              </thead>
+              <tbody id="defense-tbody">
+              </tbody>
+            </table>
+          </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -486,11 +491,6 @@
 
   /**
    * 倍率計算ロジック
-   * 弱点が2つの場合は4倍ではなく3倍になるという仕様を再現するため、
-   * 「有利(>1)」は+1ポイント、「不利(<1)」は-1ポイントとして差分(diff)を出し、
-   * diff > 0 なら 1 + diff (例: diff=1なら2x, diff=2なら3x)
-   * diff < 0 なら 0.5 ^ |diff| (例: diff=-1なら0.5x, diff=-2なら0.25x)
-   * とする加算ベースの計算を行います。
    */
   function getMultiplier(atkTypes, defTypes) {
     let weakness = 0;
@@ -513,10 +513,17 @@
     return 1;
   }
 
-  // 倍率用のHTMLフォーマット
-  function formatMultiplier(val) {
+  // 攻撃時の倍率表示 (与えるダメージが大きい＝緑、小さい＝赤)
+  function formatAttackMultiplier(val) {
     if (val > 1) return `<span class="mul-good">${val}x</span>`;
     if (val < 1) return `<span class="mul-bad">${val}x</span>`;
+    return `<span class="mul-neutral">${val}x</span>`;
+  }
+
+  // 防御時の倍率表示 (受けるダメージが大きい＝赤、小さい＝緑)
+  function formatDefenseMultiplier(val) {
+    if (val > 1) return `<span class="mul-bad">${val}x</span>`;  // 弱点
+    if (val < 1) return `<span class="mul-good">${val}x</span>`; // 耐性
     return `<span class="mul-neutral">${val}x</span>`;
   }
 
@@ -527,27 +534,29 @@
 
   // 初期化
   window.onload = () => {
-    const atkSelect = document.getElementById('attacker-select');
-    const defSelect = document.getElementById('defender-select');
+    const animalSelect = document.getElementById('animal-select');
     const animalNames = Object.keys(animals).sort();
     
     animalNames.forEach(name => {
-      atkSelect.add(new Option(name, name));
-      defSelect.add(new Option(name, name));
+      animalSelect.add(new Option(name, name));
     });
 
-    // 初期選択例を設定
-    atkSelect.selectedIndex = animalNames.indexOf("Fire Dragon") !== -1 ? animalNames.indexOf("Fire Dragon") : 0;
-    defSelect.selectedIndex = animalNames.indexOf("Ice Mask") !== -1 ? animalNames.indexOf("Ice Mask") : 1;
-
-    atkSelect.addEventListener('change', updateApp);
-    defSelect.addEventListener('change', updateApp);
+    // 初期選択
+    animalSelect.selectedIndex = animalNames.indexOf("Fire Dragon") !== -1 ? animalNames.indexOf("Fire Dragon") : 0;
+    animalSelect.addEventListener('change', updateApp);
 
     // 検索フィルター処理
     document.getElementById('search-input').addEventListener('input', function() {
       const filter = this.value.toLowerCase();
-      const rows = document.querySelectorAll('#matchup-tbody tr');
-      rows.forEach(row => {
+      // Attack Table
+      const attackRows = document.querySelectorAll('#attack-tbody tr');
+      attackRows.forEach(row => {
+        const name = row.children[0].innerText.toLowerCase();
+        row.style.display = name.includes(filter) ? '' : 'none';
+      });
+      // Defense Table
+      const defenseRows = document.querySelectorAll('#defense-tbody tr');
+      defenseRows.forEach(row => {
         const name = row.children[0].innerText.toLowerCase();
         row.style.display = name.includes(filter) ? '' : 'none';
       });
@@ -558,57 +567,63 @@
   };
 
   function updateApp() {
-    const atk = document.getElementById('attacker-select').value;
-    const def = document.getElementById('defender-select').value;
+    const selected = document.getElementById('animal-select').value;
+    const selectedTypes = animals[selected];
 
-    const atkTypes = animals[atk];
-    const defTypes = animals[def];
+    document.getElementById('animal-types').innerHTML = selectedTypes.map(createTypeBadge).join('');
 
-    document.getElementById('attacker-types').innerHTML = atkTypes.map(createTypeBadge).join('');
-    document.getElementById('defender-types').innerHTML = defTypes.map(createTypeBadge).join('');
-
-    const mul = getMultiplier(atkTypes, defTypes);
-    const resultBox = document.getElementById('damage-multiplier');
-    resultBox.innerText = `${mul}x`;
-    
-    if (mul > 1) {
-      resultBox.style.color = 'var(--success-color)';
-    } else if (mul < 1) {
-      resultBox.style.color = 'var(--danger-color)';
-    } else {
-      resultBox.style.color = 'var(--text-main)';
-    }
-    
-    document.getElementById('selected-attacker-name').innerText = atk;
-
-    updateMatchupTable(atk);
+    updateMatchupTables(selected);
     // 更新後に検索フィルタを再適用
     document.getElementById('search-input').dispatchEvent(new Event('input'));
   }
 
-  function updateMatchupTable(atk) {
-    const tbody = document.getElementById('matchup-tbody');
-    tbody.innerHTML = '';
-    const atkTypes = animals[atk];
+  function updateMatchupTables(selected) {
+    const atkBody = document.getElementById('attack-tbody');
+    const defBody = document.getElementById('defense-tbody');
+    atkBody.innerHTML = '';
+    defBody.innerHTML = '';
+    
+    const selectedTypes = animals[selected];
     const animalNames = Object.keys(animals).sort();
     
-    const rows = animalNames.map(def => {
-      const defTypes = animals[def];
-      const mul = getMultiplier(atkTypes, defTypes);
-      return { def, defTypes, mul };
+    const attackRows = [];
+    const defenseRows = [];
+
+    animalNames.forEach(target => {
+      const targetTypes = animals[target];
+      
+      // 攻撃時：選んだ動物が攻撃、相手が防御
+      const atkMul = getMultiplier(selectedTypes, targetTypes);
+      attackRows.push({ target, types: targetTypes, mul: atkMul });
+
+      // 防御時：相手が攻撃、選んだ動物が防御
+      const defMul = getMultiplier(targetTypes, selectedTypes);
+      defenseRows.push({ target, types: targetTypes, mul: defMul });
     });
 
-    // ダメージ倍率で降順ソート
-    rows.sort((a, b) => b.mul - a.mul);
+    // 与えるダメージが大きい順（得意な相手が上）
+    attackRows.sort((a, b) => b.mul - a.mul);
+    // 受けるダメージが大きい順（天敵・苦手な相手が上）
+    defenseRows.sort((a, b) => b.mul - a.mul);
 
-    rows.forEach(row => {
+    attackRows.forEach(row => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><strong>${row.def}</strong></td>
-        <td>${row.defTypes.map(createTypeBadge).join('')}</td>
-        <td>${formatMultiplier(row.mul)}</td>
+        <td><strong>${row.target}</strong></td>
+        <td>${row.types.map(createTypeBadge).join('')}</td>
+        <td>${formatAttackMultiplier(row.mul)}</td>
       `;
-      tbody.appendChild(tr);
+      atkBody.appendChild(tr);
+    });
+
+    defenseRows.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${row.target}</strong></td>
+        <td>${row.types.map(createTypeBadge).join('')}</td>
+        <td>${formatDefenseMultiplier(row.mul)}</td>
+      `;
+      defBody.appendChild(tr);
     });
   }
 
