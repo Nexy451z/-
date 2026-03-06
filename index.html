@@ -28,7 +28,7 @@
   }
 
   body {
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; /* 全体をモノスペース寄りにしてデータっぽくする */
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
     background-color: var(--bg-color);
     color: var(--text-main);
     margin: 0;
@@ -227,6 +227,11 @@
 </div>
 
 <script>
+  // Global Helper
+  function createTypeBadge(type) {
+    return `<span class="type-badge type-${type}">${type}</span>`;
+  }
+
   // Tab Logic
   function switchTab(tabId, btn) {
     document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
@@ -302,7 +307,7 @@
   function updateSim() {
     const sel = document.getElementById('animal-select').value;
     const sTypes = animals[sel];
-    document.getElementById('animal-types').innerHTML = sTypes.map(t => `<span class="type-badge type-${t}">${t}</span>`).join('');
+    document.getElementById('animal-types').innerHTML = sTypes.map(createTypeBadge).join('');
     
     const atkR = [], defR = [];
     Object.keys(animals).forEach(t => {
@@ -312,13 +317,13 @@
     });
     atkR.sort((a,b) => b.m - a.m); defR.sort((a,b) => b.m - a.m);
     
-    document.getElementById('attack-tbody').innerHTML = atkR.map(r => `<tr><td><strong>${r.t}</strong></td><td>${r.ty.map(t => `<span class="type-badge type-${t}">${t}</span>`).join('')}</td><td>${fmtMul(r.m, true)}</td></tr>`).join('');
-    document.getElementById('defense-tbody').innerHTML = defR.map(r => `<tr><td><strong>${r.t}</strong></td><td>${r.ty.map(t => `<span class="type-badge type-${t}">${t}</span>`).join('')}</td><td>${fmtMul(r.m, false)}</td></tr>`).join('');
+    document.getElementById('attack-tbody').innerHTML = atkR.map(r => `<tr><td><strong>${r.t}</strong></td><td>${r.ty.map(createTypeBadge).join('')}</td><td>${fmtMul(r.m, true)}</td></tr>`).join('');
+    document.getElementById('defense-tbody').innerHTML = defR.map(r => `<tr><td><strong>${r.t}</strong></td><td>${r.ty.map(createTypeBadge).join('')}</td><td>${fmtMul(r.m, false)}</td></tr>`).join('');
     document.getElementById('sim-search-input').dispatchEvent(new Event('input'));
   }
 
   // Tracker Logic
-  const rawLogData = `
+   const rawLogData = `
 [2026/02/28 22:33] Losangeles#1
 [2026/02/28 22:38] Dallas#4
 [2026/02/28 22:46] Atlanta#2
