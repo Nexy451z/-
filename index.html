@@ -12,265 +12,133 @@
     --text-muted: #57606a;
     --border-color: #d0d7de;
     --accent-color: #0969da;
-    --success-color: #1a7f37;
-    --danger-color: #cf222e;
-    --success-bg: #dafbe1;
-    --danger-bg: #ffebe9;
-    --warning-color: #bf8700;
+    
+    /* Functional Colors (Flat) */
+    --color-safe: #2da44e;    /* Green */
+    --color-warn: #bf8700;    /* Yellow/Orange */
+    --color-danger: #cf222e;  /* Red */
+    --color-active: #8250df;  /* Purple */
 
     /* Type Colors */
-    --type-normal: #d0bea1;
-    --type-rock: #a18658;
-    --type-water: #37c4c0;
-    --type-electric: #e0c235;
-    --type-plant: #8dae38;
-    --type-poison: #7b78b8;
-    --type-insect: #fd8b1e;
-    --type-combat: #df4e2c;
-    --type-fire: #e57619;
-    --type-ice: #45d6d1;
-    --type-spectrum: #8f94d8;
-    --type-dragon: #bddfd8;
-    --type-fairy: #ef72a6;
-    --type-ancient: #a5953a;
+    --type-normal: #d0bea1; --type-rock: #a18658; --type-water: #37c4c0;
+    --type-electric: #e0c235; --type-plant: #8dae38; --type-poison: #7b78b8;
+    --type-insect: #fd8b1e; --type-combat: #df4e2c; --type-fire: #e57619;
+    --type-ice: #45d6d1; --type-spectrum: #8f94d8; --type-dragon: #bddfd8;
+    --type-fairy: #ef72a6; --type-ancient: #a5953a;
   }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; /* 全体をモノスペース寄りにしてデータっぽくする */
     background-color: var(--bg-color);
     color: var(--text-main);
     margin: 0;
     padding: 0;
-    line-height: 1.5;
+    font-size: 13px;
   }
 
   .container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 24px;
+    padding: 20px;
   }
 
   /* Header */
-  .header {
-    margin-bottom: 16px;
-  }
-  .header h1 {
-    font-size: 24px;
-    margin: 0 0 8px;
-    font-weight: 600;
-  }
+  .header { margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+  .header h1 { font-size: 20px; margin: 0; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
 
   /* Tabs */
-  .tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    border-bottom: 1px solid var(--border-color);
-  }
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
   .tab-btn {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: 1px solid transparent;
-    border-bottom: none;
     background: transparent;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-muted);
-    border-radius: 6px 6px 0 0;
-    margin-bottom: -1px;
-    transition: background-color 0.2s, color 0.2s;
+    border-radius: 6px;
+    transition: 0.1s;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   }
-  .tab-btn.active {
-    background-color: var(--box-bg);
-    border-color: var(--border-color);
-    color: var(--text-main);
-    border-bottom-color: var(--box-bg);
-  }
-  .tab-btn:hover:not(.active) {
-    background-color: rgba(0,0,0,0.05);
-  }
+  .tab-btn.active { background-color: #eef2f6; color: var(--accent-color); border-color: transparent; }
+  .tab-btn:hover:not(.active) { background-color: rgba(0,0,0,0.05); }
 
   /* Sections */
   .section { display: none; }
   .section.active { display: block; }
 
-  /* Layout for Simulator */
-  .layout-grid {
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-  }
-  .sidebar {
-    width: 280px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .main-content {
-    flex-grow: 1;
-    min-width: 0;
-  }
-  .matchup-grids {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
+  /* Layout */
+  .layout-grid { display: flex; gap: 20px; align-items: flex-start; }
+  .sidebar { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
+  .main-content { flex-grow: 1; min-width: 0; }
+  .matchup-grids { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-  /* Box Styles */
-  .box {
-    background-color: var(--box-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 16px;
-  }
-  .box h3 {
-    margin: 0 0 16px;
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .box-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .box-header h3 {
-    margin: 0;
-  }
+  /* Boxes */
+  .box { background-color: var(--box-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; }
+  .box h3 { margin: 0 0 12px; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 
-  /* Form Elements */
+  /* Forms */
   input[type="text"], select {
-    padding: 5px 12px;
-    font-size: 14px;
-    line-height: 20px;
-    color: var(--text-main);
-    background-color: var(--box-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    width: 100%;
-    box-sizing: border-box;
-    transition: 0.2s ease-in-out;
+    padding: 4px 8px; font-size: 13px; color: var(--text-main);
+    background-color: var(--bg-color); border: 1px solid var(--border-color);
+    border-radius: 4px; width: 100%; box-sizing: border-box;
   }
-  input[type="text"]:focus, select:focus {
-    border-color: var(--accent-color);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
-  }
+  input[type="text"]:focus, select:focus { border-color: var(--accent-color); outline: none; }
 
   /* Tables */
-  .table-container {
-    overflow-y: auto;
-    max-height: 700px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-  th, td {
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--border-color);
-    text-align: left;
-    white-space: nowrap;
-  }
-  th {
-    background-color: var(--bg-color);
-    font-weight: 600;
-    color: var(--text-muted);
-    position: sticky;
-    top: 0;
-    z-index: 2;
-  }
+  .table-container { overflow-y: auto; max-height: 75vh; border: 1px solid var(--border-color); border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); text-align: left; }
+  th { background-color: #f6f8fa; font-weight: 600; color: var(--text-muted); position: sticky; top: 0; z-index: 2; }
   tr:last-child td { border-bottom: none; }
-  tr:hover td { background-color: var(--bg-color); }
+  tr:hover td { background-color: #f8f9fa; }
 
-  /* Type Badges */
-  .type-badge {
-    display: inline-block;
-    padding: 2px 10px;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 18px;
-    border-radius: 2em;
-    margin-right: 4px;
-    margin-bottom: 4px;
-    border: 1px solid rgba(0,0,0,0.1);
-  }
-  .type-container { min-height: 24px; }
-  .type-Normal { background-color: var(--type-normal); color: #000; }
-  .type-Rock { background-color: var(--type-rock); color: #fff; }
-  .type-Water { background-color: var(--type-water); color: #000; }
-  .type-Electric { background-color: var(--type-electric); color: #000; }
-  .type-Plant { background-color: var(--type-plant); color: #000; }
-  .type-Poison { background-color: var(--type-poison); color: #fff; }
-  .type-Insect { background-color: var(--type-insect); color: #000; }
-  .type-Combat { background-color: var(--type-combat); color: #fff; }
-  .type-Fire { background-color: var(--type-fire); color: #fff; }
-  .type-Ice { background-color: var(--type-ice); color: #000; }
-  .type-Spectrum { background-color: var(--type-spectrum); color: #000; }
-  .type-Dragon { background-color: var(--type-dragon); color: #000; }
-  .type-Fairy { background-color: var(--type-fairy); color: #000; }
-  .type-Ancient { background-color: var(--type-ancient); color: #fff; }
+  /* Common Simulator Styles */
+  .type-badge { display: inline-block; padding: 1px 8px; font-size: 11px; font-weight: 600; border-radius: 10px; margin-right: 4px; color: #fff; text-shadow: 0 0 1px rgba(0,0,0,0.3); }
+  .type-Normal { background-color: var(--type-normal); color: #000; text-shadow: none; }
+  .type-Rock { background-color: var(--type-rock); } .type-Water { background-color: var(--type-water); color: #000; }
+  .type-Electric { background-color: var(--type-electric); color: #000; } .type-Plant { background-color: var(--type-plant); color: #000; }
+  .type-Poison { background-color: var(--type-poison); } .type-Insect { background-color: var(--type-insect); color: #000; }
+  .type-Combat { background-color: var(--type-combat); } .type-Fire { background-color: var(--type-fire); }
+  .type-Ice { background-color: var(--type-ice); color: #000; } .type-Spectrum { background-color: var(--type-spectrum); color: #000; }
+  .type-Dragon { background-color: var(--type-dragon); color: #000; } .type-Fairy { background-color: var(--type-fairy); color: #000; }
+  .type-Ancient { background-color: var(--type-ancient); }
 
-  .mul-good { color: var(--success-color); font-weight: 600; }
-  .mul-bad { color: var(--danger-color); font-weight: 600; }
+  .mul-good { color: var(--color-safe); font-weight: 700; }
+  .mul-bad { color: var(--color-danger); font-weight: 700; }
   .mul-neutral { color: var(--text-muted); }
 
-  .type-chart-table th, .type-chart-table td {
-    text-align: center;
-    min-width: 50px;
-    border-right: 1px solid var(--border-color);
-  }
-  .type-chart-table th:first-child { position: sticky; left: 0; z-index: 3; }
-  .bg-good { background-color: var(--success-bg) !important; color: var(--success-color); font-weight: 600; }
-  .bg-bad { background-color: var(--danger-bg) !important; color: var(--danger-color); font-weight: 600; }
-  .mt-4 { margin-top: 24px; }
+  .type-chart-table th, .type-chart-table td { text-align: center; min-width: 40px; border-right: 1px solid var(--border-color); }
+  .bg-good { background-color: #dafbe1 !important; color: var(--color-safe); font-weight: 700; }
+  .bg-bad { background-color: #ffebe9 !important; color: var(--color-danger); font-weight: 700; }
 
-  /* ------------------------------------- */
-  /* Golem Tracker Specific Styles         */
-  /* ------------------------------------- */
+  /* Tracker Specific */
   .golem-table th { cursor: pointer; user-select: none; }
-  .golem-table th:hover { background-color: #e9ecef; }
-  .golem-table .sort-icon { font-size: 12px; margin-left: 4px; color: var(--text-muted); }
-  .golem-server-name { font-weight: 600; color: var(--accent-color); font-size: 16px; }
-  .golem-time-large { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 16px; font-weight: bold; }
+  .golem-table .sort-icon { font-size: 10px; margin-left: 4px; color: var(--text-muted); }
+  .golem-server-name { font-weight: 600; color: var(--accent-color); font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+  .golem-time { font-family: ui-monospace, SFMono-Regular, monospace; font-weight: 600; }
   
-  .countdown {
+  /* Simple Status Pills */
+  .status-pill {
     display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    min-width: 80px;
+    text-align: center;
   }
-  .countdown.green { background-color: var(--success-color); }
-  .countdown.yellow { background-color: #f6c85f; color: #000; }
-  .countdown.red { background-color: var(--danger-color); }
-
-  /* ACTIVE用 強調アニメーション */
-  .countdown.active-glow {
-    background: linear-gradient(90deg, #d73a49, #9b00ff);
-    color: #fff;
-    animation: activePulse 1s infinite alternate;
-    box-shadow: 0 0 10px rgba(155, 0, 255, 0.4);
-    border: 1px solid rgba(255,255,255,0.3);
-  }
-
-  @keyframes activePulse {
-    0% { filter: brightness(1); transform: scale(1); }
-    100% { filter: brightness(1.2); transform: scale(1.03); box-shadow: 0 0 15px rgba(215, 58, 73, 0.6); }
-  }
+  
+  .status-safe { background-color: var(--color-safe); color: #fff; }
+  .status-warn { background-color: var(--color-warn); color: #fff; }
+  .status-danger { background-color: var(--color-danger); color: #fff; }
+  .status-active { background-color: var(--color-active); color: #fff; }
 
   @media (max-width: 1024px) { .matchup-grids { grid-template-columns: 1fr; } }
-  @media (max-width: 768px) {
-    .layout-grid { flex-direction: column; }
-    .sidebar { width: 100%; }
-  }
+  @media (max-width: 768px) { .layout-grid { flex-direction: column; } .sidebar { width: 100%; } }
 </style>
 </head>
 <body>
@@ -285,40 +153,38 @@
     <button class="tab-btn" onclick="switchTab('tracker', this)">Gold Golem Tracker</button>
   </div>
 
-  <!-- ========================================== -->
-  <!-- Section 1: Type Simulator                  -->
-  <!-- ========================================== -->
+  <!-- Type Simulator -->
   <div id="section-simulator" class="section active">
     <div class="layout-grid">
       <div class="sidebar">
         <div class="box">
           <h3>Select Animal</h3>
           <select id="animal-select"></select>
-          <div class="mt-4"></div>
-          <div id="animal-types" class="type-container"></div>
+          <div style="margin-top: 10px;"></div>
+          <div id="animal-types" style="min-height: 20px;"></div>
         </div>
         <div class="box">
           <h3>Filter</h3>
-          <input type="text" id="sim-search-input" placeholder="Filter by animal name...">
+          <input type="text" id="sim-search-input" placeholder="Search animal...">
         </div>
       </div>
 
       <div class="main-content">
         <div class="matchup-grids">
           <div class="box">
-            <div class="box-header"><h3>Attacking (vs Defender)</h3></div>
+            <div class="box-header"><h3>Attacking</h3></div>
             <div class="table-container">
               <table id="attack-table">
-                <thead><tr><th>Defender</th><th>Types</th><th>Multiplier</th></tr></thead>
+                <thead><tr><th>Defender</th><th>Types</th><th>Mul</th></tr></thead>
                 <tbody id="attack-tbody"></tbody>
               </table>
             </div>
           </div>
           <div class="box">
-            <div class="box-header"><h3>Defending (vs Attacker)</h3></div>
+            <div class="box-header"><h3>Defending</h3></div>
             <div class="table-container">
               <table id="defense-table">
-                <thead><tr><th>Attacker</th><th>Types</th><th>Multiplier</th></tr></thead>
+                <thead><tr><th>Attacker</th><th>Types</th><th>Mul</th></tr></thead>
                 <tbody id="defense-tbody"></tbody>
               </table>
             </div>
@@ -326,7 +192,7 @@
         </div>
       </div>
     </div>
-    <div class="box mt-4">
+    <div class="box" style="margin-top: 20px;">
       <h3>Base Type Chart</h3>
       <div class="table-container">
         <table id="type-chart" class="type-chart-table"></table>
@@ -334,27 +200,24 @@
     </div>
   </div>
 
-
-  <!-- ========================================== -->
-  <!-- Section 2: Gold Golem Tracker              -->
-  <!-- ========================================== -->
+  <!-- Gold Golem Tracker -->
   <div id="section-tracker" class="section">
     <div class="box">
       <div class="box-header">
-        <h3>Auto Timetable (Base Interval: 5h 38m / Active: 15m)</h3>
-        <input type="text" id="golem-search-input" placeholder="Search Server... (e.g. Tokyo)" style="max-width: 250px;">
+        <h3>Server Timetable (Interval: 5h38m / Active: 15m)</h3>
+        <input type="text" id="golem-search-input" placeholder="Search server..." style="max-width: 250px;">
       </div>
       <div class="table-container">
-        <table class="golem-table" id="golem-table">
+        <table class="golem-table">
           <thead>
             <tr>
               <th onclick="handleSort('server')">Server <span id="icon-server" class="sort-icon"></span></th>
-              <th onclick="handleSort('time')">Next Spawn (Local Time) <span id="icon-time" class="sort-icon">▼</span></th>
-              <th onclick="handleSort('time')">Status / Countdown <span id="icon-countdown" class="sort-icon"></span></th>
+              <th onclick="handleSort('time')">Next Spawn <span id="icon-time" class="sort-icon">▼</span></th>
+              <th onclick="handleSort('time')">Status / Timer <span id="icon-countdown" class="sort-icon"></span></th>
             </tr>
           </thead>
           <tbody id="golem-tbody">
-            <tr><td colspan="3" style="text-align: center;">Loading data...</td></tr>
+            <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -364,19 +227,15 @@
 </div>
 
 <script>
-  // ==========================================
-  // Tab Switching Logic
-  // ==========================================
-  function switchTab(tabId, btnElement) {
+  // Tab Logic
+  function switchTab(tabId, btn) {
     document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById(`section-${tabId}`).classList.add('active');
-    btnElement.classList.add('active');
+    btn.classList.add('active');
   }
 
-  // ==========================================
-  // Section 1: Type Simulator Logic
-  // ==========================================
+  // Simulator Data & Logic
   const types = ["Normal", "Rock", "Water", "Electric", "Plant", "Poison", "Insect", "Combat", "Fire", "Ice", "Spectrum", "Dragon", "Fairy", "Ancient"];
   const typeRelations = {
     Normal: { Normal: 1, Rock: 0.5, Water: 1, Electric: 1, Plant: 1, Poison: 1, Insect: 1, Combat: 1, Fire: 1, Ice: 1, Spectrum: 0.5, Dragon: 1, Fairy: 1, Ancient: 1 },
@@ -429,81 +288,37 @@
     "Water Fairy": ["Fairy", "Water"], "Water Mask": ["Water", "Plant"], "Water Statue": ["Rock", "Water"], "White Spider": ["Normal"],
     "Wolf": ["Fire"], "Yellow Scorpion": ["Poison"], "Yeti": ["Ice", "Combat"]
   };
-
-  function getMultiplier(atkTypes, defTypes) {
-    let weakness = 0, resistance = 0;
-    atkTypes.forEach(a => { defTypes.forEach(d => { let val = typeRelations[a][d]; if (val > 1) weakness++; if (val < 1) resistance++; }); });
-    let diff = weakness - resistance;
-    if (diff > 0) return 1 + diff; else if (diff < 0) return Math.pow(0.5, Math.abs(diff));
-    return 1;
+  function getMultiplier(atk, def) {
+    let w = 0, r = 0;
+    atk.forEach(a => { def.forEach(d => { let v = typeRelations[a][d]; if (v > 1) w++; if (v < 1) r++; }); });
+    let diff = w - r;
+    return diff > 0 ? 1 + diff : diff < 0 ? Math.pow(0.5, Math.abs(diff)) : 1;
   }
-  function formatAttackMultiplier(val) {
-    if (val > 1) return `<span class="mul-good">${val}x</span>`;
-    if (val < 1) return `<span class="mul-bad">${val}x</span>`;
-    return `<span class="mul-neutral">${val}x</span>`;
+  function fmtMul(v, isAtk) {
+    if (v > 1) return isAtk ? `<span class="mul-good">${v}x</span>` : `<span class="mul-bad">${v}x</span>`;
+    if (v < 1) return isAtk ? `<span class="mul-bad">${v}x</span>` : `<span class="mul-good">${v}x</span>`;
+    return `<span class="mul-neutral">${v}x</span>`;
   }
-  function formatDefenseMultiplier(val) {
-    if (val > 1) return `<span class="mul-bad">${val}x</span>`; 
-    if (val < 1) return `<span class="mul-good">${val}x</span>`;
-    return `<span class="mul-neutral">${val}x</span>`;
-  }
-  function createTypeBadge(type) { return `<span class="type-badge type-${type}">${type}</span>`; }
-  
-  function updateSimApp() {
-    const selected = document.getElementById('animal-select').value;
-    const selectedTypes = animals[selected];
-    document.getElementById('animal-types').innerHTML = selectedTypes.map(createTypeBadge).join('');
+  function updateSim() {
+    const sel = document.getElementById('animal-select').value;
+    const sTypes = animals[sel];
+    document.getElementById('animal-types').innerHTML = sTypes.map(t => `<span class="type-badge type-${t}">${t}</span>`).join('');
     
-    const atkBody = document.getElementById('attack-tbody');
-    const defBody = document.getElementById('defense-tbody');
-    atkBody.innerHTML = ''; defBody.innerHTML = '';
+    const atkR = [], defR = [];
+    Object.keys(animals).forEach(t => {
+      const tTypes = animals[t];
+      atkR.push({ t, ty: tTypes, m: getMultiplier(sTypes, tTypes) });
+      defR.push({ t, ty: tTypes, m: getMultiplier(tTypes, sTypes) });
+    });
+    atkR.sort((a,b) => b.m - a.m); defR.sort((a,b) => b.m - a.m);
     
-    const attackRows = [], defenseRows = [];
-    Object.keys(animals).forEach(target => {
-      const targetTypes = animals[target];
-      attackRows.push({ target, types: targetTypes, mul: getMultiplier(selectedTypes, targetTypes) });
-      defenseRows.push({ target, types: targetTypes, mul: getMultiplier(targetTypes, selectedTypes) });
-    });
-    attackRows.sort((a, b) => b.mul - a.mul);
-    defenseRows.sort((a, b) => b.mul - a.mul);
-
-    attackRows.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td><strong>${row.target}</strong></td><td>${row.types.map(createTypeBadge).join('')}</td><td>${formatAttackMultiplier(row.mul)}</td>`;
-      atkBody.appendChild(tr);
-    });
-    defenseRows.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td><strong>${row.target}</strong></td><td>${row.types.map(createTypeBadge).join('')}</td><td>${formatDefenseMultiplier(row.mul)}</td>`;
-      defBody.appendChild(tr);
-    });
+    document.getElementById('attack-tbody').innerHTML = atkR.map(r => `<tr><td><strong>${r.t}</strong></td><td>${r.ty.map(t => `<span class="type-badge type-${t}">${t}</span>`).join('')}</td><td>${fmtMul(r.m, true)}</td></tr>`).join('');
+    document.getElementById('defense-tbody').innerHTML = defR.map(r => `<tr><td><strong>${r.t}</strong></td><td>${r.ty.map(t => `<span class="type-badge type-${t}">${t}</span>`).join('')}</td><td>${fmtMul(r.m, false)}</td></tr>`).join('');
     document.getElementById('sim-search-input').dispatchEvent(new Event('input'));
   }
 
-  function buildTypeChart() {
-    const table = document.getElementById('type-chart');
-    let thead = '<thead><tr><th>Atk \\ Def</th>';
-    types.forEach(t => thead += `<th>${createTypeBadge(t)}</th>`);
-    thead += '</tr></thead>';
-    let tbody = '<tbody>';
-    types.forEach(atk => {
-      tbody += `<tr><th>${createTypeBadge(atk)}</th>`;
-      types.forEach(def => {
-        const val = typeRelations[atk][def];
-        let cClass = val > 1 ? 'bg-good' : val < 1 ? 'bg-bad' : '';
-        tbody += `<td class="${cClass}">${val}x</td>`;
-      });
-      tbody += '</tr>';
-    });
-    tbody += '</tbody>';
-    table.innerHTML = thead + tbody;
-  }
-
-  // ==========================================
-  // Section 2: Gold Golem Tracker Logic
-  // ==========================================
-  
-    const rawLogData = `
+  // Tracker Logic
+  const rawLogData = `
 [2026/02/28 22:33] Losangeles#1
 [2026/02/28 22:38] Dallas#4
 [2026/02/28 22:46] Atlanta#2
@@ -2526,139 +2341,96 @@
 [2026/03/06 21:09] Paris#3
 `;
 
-  const INTERVAL_MS = 338 * 60 * 1000;
-  const ACTIVE_DURATION_MS = 15 * 60 * 1000; // 15分間出現し続ける
-  let serverBaseTimes = {};
-  let currentSort = { col: 'time', asc: true };
+  const INTERVAL = 338 * 60 * 1000;
+  const ACTIVE_DUR = 15 * 60 * 1000;
+  let sTimes = {};
+  let sortCfg = { col: 'time', asc: true };
 
   function handleSort(col) {
-    if (currentSort.col === col) {
-      currentSort.asc = !currentSort.asc;
-    } else {
-      currentSort.col = col;
-      currentSort.asc = true;
-    }
-    document.getElementById('icon-server').innerText = '';
-    document.getElementById('icon-time').innerText = '';
-    document.getElementById('icon-countdown').innerText = '';
-    
-    const iconText = currentSort.asc ? '▲' : '▼';
-    if (col === 'server') document.getElementById('icon-server').innerText = iconText;
-    if (col === 'time') document.getElementById('icon-time').innerText = iconText;
-    updateGolemTable();
+    if (sortCfg.col === col) sortCfg.asc = !sortCfg.asc;
+    else { sortCfg.col = col; sortCfg.asc = true; }
+    document.querySelectorAll('.sort-icon').forEach(e => e.innerText = '');
+    document.getElementById(`icon-${col}`).innerText = sortCfg.asc ? '▲' : '▼';
+    updateTracker();
   }
 
-  function initGolemTracker() {
-    const lines = rawLogData.trim().split('\n');
-    const regex = /\[(\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2})\]\s(.*)/;
-    lines.forEach(line => {
-      const match = line.match(regex);
-      if (match) {
-        const timeMs = new Date(match[1]).getTime();
-        const server = match[2].trim();
-        if (!serverBaseTimes[server] || timeMs > serverBaseTimes[server]) {
-          serverBaseTimes[server] = timeMs;
-        }
+  function initTracker() {
+    rawLogData.trim().split('\n').forEach(l => {
+      const m = l.match(/\[(\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2})\]\s(.*)/);
+      if (m) {
+        const t = new Date(m[1]).getTime(), s = m[2].trim();
+        if (!sTimes[s] || t > sTimes[s]) sTimes[s] = t;
       }
     });
-    updateGolemTable();
-    setInterval(updateGolemTable, 1000);
+    updateTracker();
+    setInterval(updateTracker, 1000);
   }
 
-  function updateGolemTable() {
+  function updateTracker() {
     if(!document.getElementById('section-tracker').classList.contains('active')) return;
-
     const now = Date.now();
-    const results = [];
-    
-    for (const [server, baseTime] of Object.entries(serverBaseTimes)) {
-      let nextSpawn = baseTime;
-    
-      while (nextSpawn + ACTIVE_DURATION_MS <= now) { 
-        nextSpawn += INTERVAL_MS; 
-      }
-      results.push({ server, nextSpawn, diffMs: nextSpawn - now });
-    }
-
-    results.sort((a, b) => {
-      if (currentSort.col === 'server') {
-        const sA = a.server.toLowerCase(), sB = b.server.toLowerCase();
-        if (sA < sB) return currentSort.asc ? -1 : 1;
-        if (sA > sB) return currentSort.asc ? 1 : -1;
-        return 0;
-      } else {
-        return currentSort.asc ? a.diffMs - b.diffMs : b.diffMs - a.diffMs;
-      }
+    let res = [];
+    Object.keys(sTimes).forEach(s => {
+      let next = sTimes[s];
+      while (next + ACTIVE_DUR <= now) next += INTERVAL;
+      res.push({ s, next, diff: next - now });
     });
 
-    const tbody = document.getElementById('golem-tbody');
-    tbody.innerHTML = '';
-    const filterText = document.getElementById('golem-search-input').value.toLowerCase();
-
-    results.forEach(item => {
-      if (!item.server.toLowerCase().includes(filterText)) return;
-      const tr = document.createElement('tr');
-      
-      const d = new Date(item.nextSpawn);
-      const timeStr = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
-      
-      let statusHtml = '';
-      
-      if (item.diffMs <= 0 && item.diffMs > -ACTIVE_DURATION_MS) {
-        const remainActiveSec = Math.floor((ACTIVE_DURATION_MS + item.diffMs) / 1000);
-        const m = Math.floor(remainActiveSec / 60);
-        const s = remainActiveSec % 60;
-        
-        statusHtml = `<span class="countdown active-glow">🔥 ACTIVE! (${m}m ${s}s left)</span>`;
-      } 
-      else {
-        const totalSec = Math.floor(item.diffMs / 1000);
-        const h = Math.floor(totalSec / 3600);
-        const m = Math.floor((totalSec % 3600) / 60);
-        const s = totalSec % 60;
-        const countStr = `${h}h ${m}m ${s}s`;
-
-        let colorClass = 'green';
-        if (totalSec <= 1800) colorClass = 'red';
-        else if (totalSec <= 3600) colorClass = 'yellow';
-
-        statusHtml = `<span class="countdown ${colorClass}">${countStr}</span>`;
+    res.sort((a,b) => {
+      if(sortCfg.col === 'server') {
+        const sa = a.s.toLowerCase(), sb = b.s.toLowerCase();
+        return (sa < sb ? -1 : 1) * (sortCfg.asc ? 1 : -1);
       }
+      return (a.diff - b.diff) * (sortCfg.asc ? 1 : -1);
+    });
 
-      tr.innerHTML = `
-        <td class="golem-server-name">${item.server}</td>
-        <td class="golem-time-large">${timeStr}</td>
-        <td>${statusHtml}</td>
-      `;
-      tbody.appendChild(tr);
+    const tb = document.getElementById('golem-tbody');
+    tb.innerHTML = '';
+    const filter = document.getElementById('golem-search-input').value.toLowerCase();
+    
+    res.forEach(r => {
+      if(!r.s.toLowerCase().includes(filter)) return;
+      const d = new Date(r.next);
+      const ts = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+      
+      let badge = '';
+      if (r.diff <= 0 && r.diff > -ACTIVE_DUR) {
+        const rem = Math.floor((ACTIVE_DUR + r.diff)/1000);
+        badge = `<span class="status-pill status-active">Active: ${Math.floor(rem/60)}m ${rem%60}s</span>`;
+      } else {
+        const tot = Math.floor(r.diff/1000);
+        const h=Math.floor(tot/3600), m=Math.floor((tot%3600)/60), s=tot%60;
+        let c = 'status-safe';
+        if(tot <= 1800) c = 'status-danger';
+        else if(tot <= 3600) c = 'status-warn';
+        badge = `<span class="status-pill ${c}">${h}h ${m}m ${s}s</span>`;
+      }
+      tb.innerHTML += `<tr><td class="golem-server-name">${r.s}</td><td class="golem-time">${ts}</td><td>${badge}</td></tr>`;
     });
   }
 
-  // ==========================================
-  // Initialization
-  // ==========================================
   window.onload = () => {
-    // Simulator Init
-    const animalSelect = document.getElementById('animal-select');
-    Object.keys(animals).sort().forEach(name => animalSelect.add(new Option(name, name)));
-    animalSelect.selectedIndex = Object.keys(animals).sort().indexOf("Fire Dragon") !== -1 ? Object.keys(animals).sort().indexOf("Fire Dragon") : 0;
-    animalSelect.addEventListener('change', updateSimApp);
-    
-    document.getElementById('sim-search-input').addEventListener('input', function() {
-      const filter = this.value.toLowerCase();
-      document.querySelectorAll('#attack-tbody tr, #defense-tbody tr').forEach(row => {
-        row.style.display = row.children[0].innerText.toLowerCase().includes(filter) ? '' : 'none';
-      });
+    const sel = document.getElementById('animal-select');
+    Object.keys(animals).sort().forEach(n => sel.add(new Option(n, n)));
+    sel.value = "Fire Dragon";
+    sel.addEventListener('change', updateSim);
+    document.getElementById('sim-search-input').addEventListener('input', function(){
+      const f = this.value.toLowerCase();
+      document.querySelectorAll('#attack-tbody tr, #defense-tbody tr').forEach(r => r.style.display = r.children[0].innerText.toLowerCase().includes(f) ? '' : 'none');
     });
     
-    buildTypeChart();
-    updateSimApp();
+    // Build tables
+    let head = '<thead><tr><th>Atk \\ Def</th>';
+    types.forEach(t => head += `<th>${createTypeBadge(t)}</th>`);
+    document.getElementById('type-chart').innerHTML = head + '</tr></thead><tbody>' + types.map(a => `<tr><th>${createTypeBadge(a)}</th>` + types.map(d => {
+      const v = typeRelations[a][d];
+      return `<td class="${v>1?'bg-good':v<1?'bg-bad':''}">${v}x</td>`;
+    }).join('') + '</tr>').join('') + '</tbody>';
 
-    // Tracker Init
-    document.getElementById('golem-search-input').addEventListener('input', updateGolemTable);
-    initGolemTracker();
+    updateSim();
+    document.getElementById('golem-search-input').addEventListener('input', updateTracker);
+    initTracker();
   };
 </script>
-
 </body>
 </html>
