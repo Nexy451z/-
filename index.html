@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taming.io Type & Damage Simulator</title>
+<title>Taming.io Tools (Type Sim & Golem Tracker)</title>
 <style>
   :root {
     --bg-color: #f6f8fa;
@@ -16,6 +16,7 @@
     --danger-color: #cf222e;
     --success-bg: #dafbe1;
     --danger-bg: #ffebe9;
+    --warning-color: #bf8700;
 
     /* Type Colors */
     --type-normal: #d0bea1;
@@ -51,22 +52,49 @@
 
   /* Header */
   .header {
-    margin-bottom: 24px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 16px;
+    margin-bottom: 16px;
   }
   .header h1 {
     font-size: 24px;
     margin: 0 0 8px;
     font-weight: 600;
   }
-  .header p {
-    margin: 0;
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
     color: var(--text-muted);
-    font-size: 14px;
+    border-radius: 6px 6px 0 0;
+    margin-bottom: -1px;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .tab-btn.active {
+    background-color: var(--box-bg);
+    border-color: var(--border-color);
+    color: var(--text-main);
+    border-bottom-color: var(--box-bg);
+  }
+  .tab-btn:hover:not(.active) {
+    background-color: rgba(0,0,0,0.05);
   }
 
-  /* Layout */
+  /* Sections */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Layout for Simulator */
   .layout-grid {
     display: flex;
     gap: 24px;
@@ -83,7 +111,6 @@
     flex-grow: 1;
     min-width: 0;
   }
-
   .matchup-grids {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -120,7 +147,7 @@
     font-size: 14px;
     line-height: 20px;
     color: var(--text-main);
-    background-color: var(--bg-color);
+    background-color: var(--box-bg);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     width: 100%;
@@ -136,7 +163,7 @@
   /* Tables */
   .table-container {
     overflow-y: auto;
-    max-height: 600px;
+    max-height: 700px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
   }
@@ -159,13 +186,8 @@
     top: 0;
     z-index: 2;
   }
-  tr:last-child td {
-    border-bottom: none;
-  }
-  tr:hover td {
-    background-color: var(--box-bg);
-    filter: brightness(0.96);
-  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background-color: var(--bg-color); }
 
   /* Type Badges */
   .type-badge {
@@ -179,11 +201,7 @@
     margin-bottom: 4px;
     border: 1px solid rgba(0,0,0,0.1);
   }
-  .type-container {
-    min-height: 24px;
-  }
-
-  /* Colors for Badges */
+  .type-container { min-height: 24px; }
   .type-Normal { background-color: var(--type-normal); color: #000; }
   .type-Rock { background-color: var(--type-rock); color: #fff; }
   .type-Water { background-color: var(--type-water); color: #000; }
@@ -210,29 +228,47 @@
     min-width: 50px;
     border-right: 1px solid var(--border-color);
   }
-  .type-chart-table th:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 3;
-  }
+  .type-chart-table th:first-child { position: sticky; left: 0; z-index: 3; }
   .bg-good { background-color: var(--success-bg) !important; color: var(--success-color); font-weight: 600; }
   .bg-bad { background-color: var(--danger-bg) !important; color: var(--danger-color); font-weight: 600; }
-
   .mt-4 { margin-top: 24px; }
 
-  @media (max-width: 1024px) {
-    .matchup-grids {
-      grid-template-columns: 1fr;
-    }
+  /* ------------------------------------- */
+  /* Golem Tracker Specific Styles         */
+  /* ------------------------------------- */
+  .golem-table th {
+    cursor: pointer;
+    user-select: none;
+  }
+  .golem-table th:hover { background-color: #e9ecef; }
+  .golem-table .sort-icon { font-size: 12px; margin-left: 4px; color: var(--text-muted); }
+  .golem-server-name { font-weight: 600; color: var(--accent-color); font-size: 16px; }
+  .golem-time-large { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 16px; font-weight: bold; }
+  
+  .countdown {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    color: #fff;
+  }
+  .countdown.green { background-color: var(--success-color); }
+  .countdown.yellow { background-color: #f6c85f; color: #000; }
+  .countdown.red { background-color: var(--danger-color); animation: pulse 1.5s infinite; }
+
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
   }
 
+  @media (max-width: 1024px) {
+    .matchup-grids { grid-template-columns: 1fr; }
+  }
   @media (max-width: 768px) {
-    .layout-grid {
-      flex-direction: column;
-    }
-    .sidebar {
-      width: 100%;
-    }
+    .layout-grid { flex-direction: column; }
+    .sidebar { width: 100%; }
   }
 </style>
 </head>
@@ -240,91 +276,120 @@
 
 <div class="container">
   <div class="header">
-    <h1>Taming.io Type Matchup List</h1>
-    <p>動物を1体選択し、攻撃時・防御時それぞれの全動物に対する相性を確認できます</p>
+    <h1>Taming.io Tools</h1>
   </div>
 
-  <div class="layout-grid">
-    <!-- Sidebar: Controls -->
-    <div class="sidebar">
-      <div class="box">
-        <h3>Select Animal</h3>
-        <select id="animal-select"></select>
-        <div class="mt-4"></div>
-        <div id="animal-types" class="type-container"></div>
-      </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('simulator', this)">Type Simulator</button>
+    <button class="tab-btn" onclick="switchTab('tracker', this)">Gold Golem Tracker</button>
+  </div>
 
-      <div class="box">
-        <h3>Filter</h3>
-        <input type="text" id="search-input" class="search-bar" placeholder="Filter by animal name...">
-      </div>
-    </div>
-
-    <!-- Main Content: Matchup Tables -->
-    <div class="main-content">
-      <div class="matchup-grids">
-        
-        <!-- Attack Table -->
+  <!-- ========================================== -->
+  <!-- Section 1: Type Simulator                  -->
+  <!-- ========================================== -->
+  <div id="section-simulator" class="section active">
+    <div class="layout-grid">
+      <!-- Sidebar -->
+      <div class="sidebar">
         <div class="box">
-          <div class="box-header">
-            <h3>Attacking (vs Defender)</h3>
+          <h3>Select Animal</h3>
+          <select id="animal-select"></select>
+          <div class="mt-4"></div>
+          <div id="animal-types" class="type-container"></div>
+        </div>
+        <div class="box">
+          <h3>Filter</h3>
+          <input type="text" id="sim-search-input" placeholder="Filter by animal name...">
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="matchup-grids">
+          <!-- Attack Table -->
+          <div class="box">
+            <div class="box-header">
+              <h3>Attacking (vs Defender)</h3>
+            </div>
+            <div class="table-container">
+              <table id="attack-table">
+                <thead><tr><th>Defender</th><th>Types</th><th>Multiplier</th></tr></thead>
+                <tbody id="attack-tbody"></tbody>
+              </table>
+            </div>
           </div>
-          <div class="table-container">
-            <table id="attack-table">
-              <thead>
-                <tr>
-                  <th>Defender</th>
-                  <th>Types</th>
-                  <th>Multiplier</th>
-                </tr>
-              </thead>
-              <tbody id="attack-tbody">
-              </tbody>
-            </table>
+          <!-- Defense Table -->
+          <div class="box">
+            <div class="box-header">
+              <h3>Defending (vs Attacker)</h3>
+            </div>
+            <div class="table-container">
+              <table id="defense-table">
+                <thead><tr><th>Attacker</th><th>Types</th><th>Multiplier</th></tr></thead>
+                <tbody id="defense-tbody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
-
-        <!-- Defense Table -->
-        <div class="box">
-          <div class="box-header">
-            <h3>Defending (vs Attacker)</h3>
-          </div>
-          <div class="table-container">
-            <table id="defense-table">
-              <thead>
-                <tr>
-                  <th>Attacker</th>
-                  <th>Types</th>
-                  <th>Multiplier</th>
-                </tr>
-              </thead>
-              <tbody id="defense-tbody">
-              </tbody>
-            </table>
-          </div>
-        </div>
-
+      </div>
+    </div>
+    <!-- Full Type Chart -->
+    <div class="box mt-4">
+      <h3>Base Type Chart</h3>
+      <div class="table-container">
+        <table id="type-chart" class="type-chart-table"></table>
       </div>
     </div>
   </div>
 
-  <!-- Full Type Chart -->
-  <div class="box mt-4">
-    <h3>Base Type Chart</h3>
-    <div class="table-container">
-      <table id="type-chart" class="type-chart-table"></table>
+
+  <!-- ========================================== -->
+  <!-- Section 2: Gold Golem Tracker              -->
+  <!-- ========================================== -->
+  <div id="section-tracker" class="section">
+    <div class="box">
+      <div class="box-header">
+        <h3>Auto Timetable (Base Interval: 5h 38m)</h3>
+        <input type="text" id="golem-search-input" placeholder="Search Server... (e.g. Tokyo)" style="max-width: 250px;">
+      </div>
+      <div class="table-container">
+        <table class="golem-table" id="golem-table">
+          <thead>
+            <tr>
+              <th onclick="handleSort('server')">Server <span id="icon-server" class="sort-icon"></span></th>
+              <th onclick="handleSort('time')">Next Spawn (Local Time) <span id="icon-time" class="sort-icon">▼</span></th>
+              <th onclick="handleSort('time')">Countdown <span id="icon-countdown" class="sort-icon"></span></th>
+            </tr>
+          </thead>
+          <tbody id="golem-tbody">
+            <tr><td colspan="3" style="text-align: center;">Loading data...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+
 </div>
 
+
 <script>
-  // タイプの定義
+  // ==========================================
+  // Tab Switching Logic
+  // ==========================================
+  function switchTab(tabId, btnElement) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(`section-${tabId}`).classList.add('active');
+    btnElement.classList.add('active');
+  }
+
+  // ==========================================
+  // Section 1: Type Simulator Logic
+  // ==========================================
   const types = [
     "Normal", "Rock", "Water", "Electric", "Plant", "Poison", "Insect", 
     "Combat", "Fire", "Ice", "Spectrum", "Dragon", "Fairy", "Ancient"
   ];
-
-  // 1対1の基本タイプ相性
   const typeRelations = {
     Normal: { Normal: 1, Rock: 0.5, Water: 1, Electric: 1, Plant: 1, Poison: 1, Insect: 1, Combat: 1, Fire: 1, Ice: 1, Spectrum: 0.5, Dragon: 1, Fairy: 1, Ancient: 1 },
     Rock: { Normal: 1, Rock: 1, Water: 1, Electric: 2, Plant: 1, Poison: 2, Insect: 2, Combat: 0.5, Fire: 2, Ice: 2, Spectrum: 1, Dragon: 1, Fairy: 2, Ancient: 0.5 },
@@ -341,161 +406,44 @@
     Fairy: { Normal: 1, Rock: 0.5, Water: 1, Electric: 1, Plant: 1, Poison: 1, Insect: 1, Combat: 2, Fire: 0.5, Ice: 1, Spectrum: 2, Dragon: 2, Fairy: 1, Ancient: 1 },
     Ancient: { Normal: 1, Rock: 2, Water: 1, Electric: 2, Plant: 1, Poison: 1, Insect: 2, Combat: 1, Fire: 2, Ice: 0.5, Spectrum: 1, Dragon: 0.5, Fairy: 2, Ancient: 0.5 }
   };
-
-  // 動物のリスト
   const animals = {
-    "Acidog": ["Poison"],
-    "Adoring Shadow": ["Insect", "Plant"],
-    "Ancient Boostling": ["Ancient"],
-    "Armadillo": ["Rock"],
-    "Axolotl": ["Water"],
-    "Barn Owl": ["Spectrum"],
-    "Bat": ["Spectrum"],
-    "Bear": ["Water"],
-    "Black Cat": ["Spectrum"],
-    "Black Spider": ["Poison"],
-    "Boar": ["Poison"],
-    "Bugdog": ["Insect"],
-    "Bull": ["Rock"],
-    "Camel": ["Water"],
-    "Caracal": ["Normal"],
-    "Coldog": ["Ice"],
-    "Combat Boostling": ["Combat"],
-    "Combat Fairy": ["Fairy", "Combat"],
-    "Cow": ["Normal"],
-    "Cratodon": ["Ancient"],
-    "Dark Wisp": ["Spectrum"],
-    "Deer": ["Plant"],
-    "Digger Shadow": ["Insect", "Combat"],
-    "Dog": ["Normal"],
-    "Draconic Gaze": ["Dragon"],
-    "Dragon": ["Dragon"],
-    "Dragon Boostling": ["Dragon"],
-    "Dragon Fairy": ["Fairy", "Dragon"],
-    "Easter Bunny": ["Normal"],
-    "Electric Boostling": ["Electric"],
-    "Electric Fairy": ["Fairy", "Electric"],
-    "Enchanting Gaze": ["Fairy"],
-    "Fairy Boostling": ["Fairy"],
-    "Fennec Fox": ["Fire"],
-    "Fire Boostling": ["Fire"],
-    "Fire Dragon": ["Dragon", "Fire"],
-    "Fire Fairy": ["Fairy", "Fire"],
-    "Fire Statue": ["Rock", "Fire"],
-    "Fire Wisp": ["Fire"],
-    "Floodog": ["Water"],
-    "Flying Squirrel": ["Plant"],
-    "Fox": ["Electric"],
-    "Genie": ["Fairy"],
-    "Giant Bee": ["Insect"],
-    "Giant Mantis": ["Insect"],
-    "Giant Moth": ["Insect"],
-    "Glacial Gaze": ["Ice"],
-    "Gold Golem": ["Rock"],
-    "Goldfish": ["Water"],
-    "Guardian Shadow": ["Insect", "Ice"],
-    "Hedgehog": ["Fire"],
-    "Hellhound": ["Fire", "Spectrum"],
-    "Horse": ["Fire"],
-    "Ibex": ["Rock"],
-    "Ice Boostling": ["Ice"],
-    "Ice Dragon": ["Dragon", "Ice"],
-    "Ice Fairy": ["Fairy", "Ice"],
-    "Ice Golem": ["Ice"],
-    "Ice Mask": ["Ice", "Plant"],
-    "Iceberg": ["Ice"],
-    "Inferno Gaze": ["Fire"],
-    "Infesting Gaze": ["Insect"],
-    "Insect Boostling": ["Insect"],
-    "Insect Fairy": ["Fairy", "Insect"],
-    "Kangaroo": ["Combat"],
-    "Krampus": ["Spectrum"],
-    "Lava Golem": ["Fire"],
-    "Living Mushroom": ["Combat"],
-    "Lizardman": ["Combat"],
-    "Lynx": ["Combat"],
-    "Mammoth": ["Rock", "Ancient"],
-    "Mantle": ["Rock"],
-    "Mauve": ["Normal"],
-    "Menhir": ["Rock"],
-    "Normal Boostling": ["Normal"],
-    "Normal Fairy": ["Fairy", "Normal"],
-    "Normal Mask": ["Normal", "Plant"],
-    "Octopus": ["Water"],
-    "Oryx": ["Rock"],
-    "Ostrich": ["Electric"],
-    "Penguin": ["Ice"],
-    "Plant Boostling": ["Plant"],
-    "Plant Fairy": ["Fairy", "Plant"],
-    "Plant Mask": ["Plant"],
-    "Plant Statue": ["Rock", "Plant"],
-    "Poison Boostling": ["Poison"],
-    "Poison Fairy": ["Fairy", "Poison"],
-    "Polar Bear": ["Ice"],
-    "Polecat": ["Poison"],
-    "Pudgy Shadow": ["Insect", "Water"],
-    "Punchy Gaze": ["Combat"],
-    "Rabbat": ["Spectrum"],
-    "Rabbid": ["Combat"],
-    "Rabbit": ["Plant"],
-    "Rabblow": ["Rock"],
-    "Rabburn": ["Fire"],
-    "Rabbyss": ["Water"],
-    "Rat": ["Electric"],
-    "Raven": ["Spectrum"],
-    "Reaper": ["Fairy"],
-    "Reindeer": ["Normal"],
-    "Rexdog": ["Ancient"],
-    "Rock Boostling": ["Rock"],
-    "Rock Fairy": ["Fairy", "Rock"],
-    "Rock Mask": ["Rock", "Plant"],
-    "Salamander": ["Fire"],
-    "Savant Shadow": ["Insect", "Spectrum"],
-    "Scrappy Shadow": ["Insect", "Fire"],
-    "Sea Crab": ["Water"],
-    "Seahorse": ["Water"],
-    "Seal": ["Ice"],
-    "Shark": ["Combat"],
-    "Sheep": ["Electric"],
-    "Siren": ["Rock", "Water"],
-    "Skunk": ["Poison"],
-    "Slime": ["Poison"],
-    "Snow Fox": ["Ice"],
-    "Snow Rabbit": ["Ice"],
-    "Snow Wolf": ["Ice"],
-    "Snowball": ["Ice"],
-    "Snowman": ["Ice"],
-    "Spectral Gaze": ["Spectrum"],
-    "Spectrum": ["Spectrum"],
-    "Spectrum Boostling": ["Spectrum"],
-    "Spectrum Fairy": ["Fairy", "Spectrum"],
-    "Squid": ["Poison"],
-    "Stingray": ["Electric"],
-    "Stone Golem": ["Rock"],
-    "Tambidi": ["Poison"],
-    "Toad": ["Water"],
-    "Turkey": ["Plant"],
-    "Unicorn": ["Spectrum"],
-    "Volcanic Golem": ["Rock", "Fire"],
-    "Vulture": ["Spectrum"],
-    "Warg": ["Spectrum"],
-    "Water Boostling": ["Water"],
-    "Water Fairy": ["Fairy", "Water"],
-    "Water Mask": ["Water", "Plant"],
-    "Water Statue": ["Rock", "Water"],
-    "White Spider": ["Normal"],
-    "Wolf": ["Fire"],
-    "Yellow Scorpion": ["Poison"],
-    "Yeti": ["Ice", "Combat"]
+    "Acidog": ["Poison"], "Adoring Shadow": ["Insect", "Plant"], "Ancient Boostling": ["Ancient"], "Armadillo": ["Rock"],
+    "Axolotl": ["Water"], "Barn Owl": ["Spectrum"], "Bat": ["Spectrum"], "Bear": ["Water"], "Black Cat": ["Spectrum"],
+    "Black Spider": ["Poison"], "Boar": ["Poison"], "Bugdog": ["Insect"], "Bull": ["Rock"], "Camel": ["Water"],
+    "Caracal": ["Normal"], "Coldog": ["Ice"], "Combat Boostling": ["Combat"], "Combat Fairy": ["Fairy", "Combat"],
+    "Cow": ["Normal"], "Cratodon": ["Ancient"], "Dark Wisp": ["Spectrum"], "Deer": ["Plant"], "Digger Shadow": ["Insect", "Combat"],
+    "Dog": ["Normal"], "Draconic Gaze": ["Dragon"], "Dragon": ["Dragon"], "Dragon Boostling": ["Dragon"],
+    "Dragon Fairy": ["Fairy", "Dragon"], "Easter Bunny": ["Normal"], "Electric Boostling": ["Electric"], "Electric Fairy": ["Fairy", "Electric"],
+    "Enchanting Gaze": ["Fairy"], "Fairy Boostling": ["Fairy"], "Fennec Fox": ["Fire"], "Fire Boostling": ["Fire"],
+    "Fire Dragon": ["Dragon", "Fire"], "Fire Fairy": ["Fairy", "Fire"], "Fire Statue": ["Rock", "Fire"], "Fire Wisp": ["Fire"],
+    "Floodog": ["Water"], "Flying Squirrel": ["Plant"], "Fox": ["Electric"], "Genie": ["Fairy"], "Giant Bee": ["Insect"],
+    "Giant Mantis": ["Insect"], "Giant Moth": ["Insect"], "Glacial Gaze": ["Ice"], "Gold Golem": ["Rock"], "Goldfish": ["Water"],
+    "Guardian Shadow": ["Insect", "Ice"], "Hedgehog": ["Fire"], "Hellhound": ["Fire", "Spectrum"], "Horse": ["Fire"],
+    "Ibex": ["Rock"], "Ice Boostling": ["Ice"], "Ice Dragon": ["Dragon", "Ice"], "Ice Fairy": ["Fairy", "Ice"],
+    "Ice Golem": ["Ice"], "Ice Mask": ["Ice", "Plant"], "Iceberg": ["Ice"], "Inferno Gaze": ["Fire"], "Infesting Gaze": ["Insect"],
+    "Insect Boostling": ["Insect"], "Insect Fairy": ["Fairy", "Insect"], "Kangaroo": ["Combat"], "Krampus": ["Spectrum"],
+    "Lava Golem": ["Fire"], "Living Mushroom": ["Combat"], "Lizardman": ["Combat"], "Lynx": ["Combat"],
+    "Mammoth": ["Rock", "Ancient"], "Mantle": ["Rock"], "Mauve": ["Normal"], "Menhir": ["Rock"], "Normal Boostling": ["Normal"],
+    "Normal Fairy": ["Fairy", "Normal"], "Normal Mask": ["Normal", "Plant"], "Octopus": ["Water"], "Oryx": ["Rock"],
+    "Ostrich": ["Electric"], "Penguin": ["Ice"], "Plant Boostling": ["Plant"], "Plant Fairy": ["Fairy", "Plant"],
+    "Plant Mask": ["Plant"], "Plant Statue": ["Rock", "Plant"], "Poison Boostling": ["Poison"], "Poison Fairy": ["Fairy", "Poison"],
+    "Polar Bear": ["Ice"], "Polecat": ["Poison"], "Pudgy Shadow": ["Insect", "Water"], "Punchy Gaze": ["Combat"],
+    "Rabbat": ["Spectrum"], "Rabbid": ["Combat"], "Rabbit": ["Plant"], "Rabblow": ["Rock"], "Rabburn": ["Fire"],
+    "Rabbyss": ["Water"], "Rat": ["Electric"], "Raven": ["Spectrum"], "Reaper": ["Fairy"], "Reindeer": ["Normal"],
+    "Rexdog": ["Ancient"], "Rock Boostling": ["Rock"], "Rock Fairy": ["Fairy", "Rock"], "Rock Mask": ["Rock", "Plant"],
+    "Salamander": ["Fire"], "Savant Shadow": ["Insect", "Spectrum"], "Scrappy Shadow": ["Insect", "Fire"], "Sea Crab": ["Water"],
+    "Seahorse": ["Water"], "Seal": ["Ice"], "Shark": ["Combat"], "Sheep": ["Electric"], "Siren": ["Rock", "Water"],
+    "Skunk": ["Poison"], "Slime": ["Poison"], "Snow Fox": ["Ice"], "Snow Rabbit": ["Ice"], "Snow Wolf": ["Ice"],
+    "Snowball": ["Ice"], "Snowman": ["Ice"], "Spectral Gaze": ["Spectrum"], "Spectrum": ["Spectrum"],
+    "Spectrum Boostling": ["Spectrum"], "Spectrum Fairy": ["Fairy", "Spectrum"], "Squid": ["Poison"], "Stingray": ["Electric"],
+    "Stone Golem": ["Rock"], "Tambidi": ["Poison"], "Toad": ["Water"], "Turkey": ["Plant"], "Unicorn": ["Spectrum"],
+    "Volcanic Golem": ["Rock", "Fire"], "Vulture": ["Spectrum"], "Warg": ["Spectrum"], "Water Boostling": ["Water"],
+    "Water Fairy": ["Fairy", "Water"], "Water Mask": ["Water", "Plant"], "Water Statue": ["Rock", "Water"], "White Spider": ["Normal"],
+    "Wolf": ["Fire"], "Yellow Scorpion": ["Poison"], "Yeti": ["Ice", "Combat"]
   };
 
-  /**
-   * 倍率計算ロジック
-   */
   function getMultiplier(atkTypes, defTypes) {
-    let weakness = 0;
-    let resistance = 0;
-
+    let weakness = 0, resistance = 0;
     atkTypes.forEach(a => {
       defTypes.forEach(d => {
         let val = typeRelations[a][d];
@@ -503,155 +451,2214 @@
         if (val < 1) resistance++;
       });
     });
-
     let diff = weakness - resistance;
-    if (diff > 0) {
-      return 1 + diff; // 1 -> 2x, 2 -> 3x
-    } else if (diff < 0) {
-      return Math.pow(0.5, Math.abs(diff)); // -1 -> 0.5x, -2 -> 0.25x
-    }
+    if (diff > 0) return 1 + diff;
+    else if (diff < 0) return Math.pow(0.5, Math.abs(diff));
     return 1;
   }
-
-  // 攻撃時の倍率表示 (与えるダメージが大きい＝緑、小さい＝赤)
   function formatAttackMultiplier(val) {
     if (val > 1) return `<span class="mul-good">${val}x</span>`;
     if (val < 1) return `<span class="mul-bad">${val}x</span>`;
     return `<span class="mul-neutral">${val}x</span>`;
   }
-
-  // 防御時の倍率表示 (受けるダメージが大きい＝赤、小さい＝緑)
   function formatDefenseMultiplier(val) {
-    if (val > 1) return `<span class="mul-bad">${val}x</span>`;  // 弱点
-    if (val < 1) return `<span class="mul-good">${val}x</span>`; // 耐性
+    if (val > 1) return `<span class="mul-bad">${val}x</span>`; 
+    if (val < 1) return `<span class="mul-good">${val}x</span>`;
     return `<span class="mul-neutral">${val}x</span>`;
   }
-
-  // タイプバッジのHTML
   function createTypeBadge(type) {
     return `<span class="type-badge type-${type}">${type}</span>`;
   }
-
-  // 初期化
-  window.onload = () => {
-    const animalSelect = document.getElementById('animal-select');
-    const animalNames = Object.keys(animals).sort();
-    
-    animalNames.forEach(name => {
-      animalSelect.add(new Option(name, name));
-    });
-
-    // 初期選択
-    animalSelect.selectedIndex = animalNames.indexOf("Fire Dragon") !== -1 ? animalNames.indexOf("Fire Dragon") : 0;
-    animalSelect.addEventListener('change', updateApp);
-
-    // 検索フィルター処理
-    document.getElementById('search-input').addEventListener('input', function() {
-      const filter = this.value.toLowerCase();
-      // Attack Table
-      const attackRows = document.querySelectorAll('#attack-tbody tr');
-      attackRows.forEach(row => {
-        const name = row.children[0].innerText.toLowerCase();
-        row.style.display = name.includes(filter) ? '' : 'none';
-      });
-      // Defense Table
-      const defenseRows = document.querySelectorAll('#defense-tbody tr');
-      defenseRows.forEach(row => {
-        const name = row.children[0].innerText.toLowerCase();
-        row.style.display = name.includes(filter) ? '' : 'none';
-      });
-    });
-
-    buildTypeChart();
-    updateApp();
-  };
-
-  function updateApp() {
+  
+  function updateSimApp() {
     const selected = document.getElementById('animal-select').value;
     const selectedTypes = animals[selected];
-
     document.getElementById('animal-types').innerHTML = selectedTypes.map(createTypeBadge).join('');
-
-    updateMatchupTables(selected);
-    // 更新後に検索フィルタを再適用
-    document.getElementById('search-input').dispatchEvent(new Event('input'));
-  }
-
-  function updateMatchupTables(selected) {
+    
     const atkBody = document.getElementById('attack-tbody');
     const defBody = document.getElementById('defense-tbody');
-    atkBody.innerHTML = '';
-    defBody.innerHTML = '';
+    atkBody.innerHTML = ''; defBody.innerHTML = '';
     
-    const selectedTypes = animals[selected];
-    const animalNames = Object.keys(animals).sort();
-    
-    const attackRows = [];
-    const defenseRows = [];
-
-    animalNames.forEach(target => {
+    const attackRows = [], defenseRows = [];
+    Object.keys(animals).forEach(target => {
       const targetTypes = animals[target];
-      
-      // 攻撃時：選んだ動物が攻撃、相手が防御
-      const atkMul = getMultiplier(selectedTypes, targetTypes);
-      attackRows.push({ target, types: targetTypes, mul: atkMul });
-
-      // 防御時：相手が攻撃、選んだ動物が防御
-      const defMul = getMultiplier(targetTypes, selectedTypes);
-      defenseRows.push({ target, types: targetTypes, mul: defMul });
+      attackRows.push({ target, types: targetTypes, mul: getMultiplier(selectedTypes, targetTypes) });
+      defenseRows.push({ target, types: targetTypes, mul: getMultiplier(targetTypes, selectedTypes) });
     });
-
-    // 与えるダメージが大きい順（得意な相手が上）
     attackRows.sort((a, b) => b.mul - a.mul);
-    // 受けるダメージが大きい順（天敵・苦手な相手が上）
     defenseRows.sort((a, b) => b.mul - a.mul);
 
     attackRows.forEach(row => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>${row.target}</strong></td>
-        <td>${row.types.map(createTypeBadge).join('')}</td>
-        <td>${formatAttackMultiplier(row.mul)}</td>
-      `;
+      tr.innerHTML = `<td><strong>${row.target}</strong></td><td>${row.types.map(createTypeBadge).join('')}</td><td>${formatAttackMultiplier(row.mul)}</td>`;
       atkBody.appendChild(tr);
     });
-
     defenseRows.forEach(row => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>${row.target}</strong></td>
-        <td>${row.types.map(createTypeBadge).join('')}</td>
-        <td>${formatDefenseMultiplier(row.mul)}</td>
-      `;
+      tr.innerHTML = `<td><strong>${row.target}</strong></td><td>${row.types.map(createTypeBadge).join('')}</td><td>${formatDefenseMultiplier(row.mul)}</td>`;
       defBody.appendChild(tr);
     });
+    document.getElementById('sim-search-input').dispatchEvent(new Event('input'));
   }
 
   function buildTypeChart() {
     const table = document.getElementById('type-chart');
-    
     let thead = '<thead><tr><th>Atk \\ Def</th>';
-    types.forEach(t => {
-      thead += `<th>${createTypeBadge(t)}</th>`;
-    });
+    types.forEach(t => thead += `<th>${createTypeBadge(t)}</th>`);
     thead += '</tr></thead>';
-
     let tbody = '<tbody>';
     types.forEach(atk => {
       tbody += `<tr><th>${createTypeBadge(atk)}</th>`;
       types.forEach(def => {
         const val = typeRelations[atk][def];
-        let colorClass = '';
-        if (val > 1) colorClass = 'bg-good';
-        else if (val < 1) colorClass = 'bg-bad';
-        tbody += `<td class="${colorClass}">${val}x</td>`;
+        let cClass = val > 1 ? 'bg-good' : val < 1 ? 'bg-bad' : '';
+        tbody += `<td class="${cClass}">${val}x</td>`;
       });
       tbody += '</tr>';
     });
     tbody += '</tbody>';
-
     table.innerHTML = thead + tbody;
   }
+
+  // ==========================================
+  // Section 2: Gold Golem Tracker Logic
+  // ==========================================
+  const rawLogData = `
+[2026/02/28 22:33] Losangeles#1
+[2026/02/28 22:38] Dallas#4
+[2026/02/28 22:46] Atlanta#2
+[2026/02/28 22:47] Newyork#4
+[2026/02/28 22:47] Paris#4
+[2026/02/28 23:05] Seattle#3
+[2026/02/28 23:06] Miami#1
+[2026/02/28 23:08] Stpetersburg#3
+[2026/02/28 23:11] Chicago#1
+[2026/02/28 23:12] Singapore#4
+[2026/02/28 23:17] Miami#2
+[2026/02/28 23:19] Sydney#2
+[2026/02/28 23:22] Frankfurt#6
+[2026/02/28 23:28] Toronto#6
+[2026/02/28 23:35] Sydney#3
+[2026/02/28 23:40] Tokyo#4
+[2026/02/28 23:46] Frankfurt#4
+[2026/02/28 23:57] Paris#2
+[2026/03/01 00:03] Seattle#2
+[2026/03/01 00:08] Paris#5
+[2026/03/01 00:14] Paris#3
+[2026/03/01 00:18] Stpetersburg#2
+[2026/03/01 00:21] Seattle#1
+[2026/03/01 00:23] Losangeles#2
+[2026/03/01 00:25] Singapore#7
+[2026/03/01 00:25] Atlanta#5
+[2026/03/01 00:28] Paris#1
+[2026/03/01 00:30] Miami#4
+[2026/03/01 00:32] Chicago#2
+[2026/03/01 00:34] Losangeles#3
+[2026/03/01 00:38] Frankfurt#3
+[2026/03/01 00:53] Miami#3
+[2026/03/01 00:58] Singapore#3
+[2026/03/01 01:01] Dallas#5
+[2026/03/01 01:02] Siliconvalley#3
+[2026/03/01 01:10] Newyork#3
+[2026/03/01 01:11] Toronto#4
+[2026/03/01 01:12] Saopaulo#4
+[2026/03/01 01:12] Singapore#6
+[2026/03/01 01:12] Saopaulo#2
+[2026/03/01 01:18] Frankfurt#2
+[2026/03/01 01:18] Mumbai#2
+[2026/03/01 01:19] Newyork#1
+[2026/03/01 01:22] Sydney#1
+[2026/03/01 01:30] Tokyo#1
+[2026/03/01 01:36] Tokyo#3
+[2026/03/01 01:36] Mumbai#3
+[2026/03/01 01:37] Saopaulo#1
+[2026/03/01 01:39] Tokyo#2
+[2026/03/01 01:47] Dallas#3
+[2026/03/01 01:48] Stpetersburg#1
+[2026/03/01 01:51] Atlanta#3
+[2026/03/01 01:54] Saopaulo#3
+[2026/03/01 01:56] Toronto#1
+[2026/03/01 01:57] Atlanta#4
+[2026/03/01 01:59] Frankfurt#5
+[2026/03/01 02:04] Toronto#2
+[2026/03/01 02:06] Toronto#5
+[2026/03/01 02:06] Chicago#4
+[2026/03/01 02:17] Siliconvalley#4
+[2026/03/01 02:22] Toronto#3
+[2026/03/01 02:23] Dallas#1
+[2026/03/01 02:23] Singapore#1
+[2026/03/01 02:24] Singapore#5
+[2026/03/01 02:25] Singapore#9
+[2026/03/01 02:32] Siliconvalley#2
+[2026/03/01 02:47] Siliconvalley#1
+[2026/03/01 02:56] Dallas#2
+[2026/03/01 03:07] Atlanta#1
+[2026/03/01 03:10] Frankfurt#7
+[2026/03/01 03:12] Stpetersburg#4
+[2026/03/01 03:17] Singapore#8
+[2026/03/01 03:18] Singapore#2
+[2026/03/01 03:26] Atlanta#6
+[2026/03/01 03:26] Mumbai#1
+[2026/03/01 03:26] Chicago#3
+[2026/03/01 03:29] Chicago#5
+[2026/03/01 03:39] Frankfurt#1
+[2026/03/01 03:45] Newyork#2
+[2026/03/01 03:45] Paris#6
+[2026/03/01 04:11] Losangeles#1
+[2026/03/01 04:16] Dallas#4
+[2026/03/01 04:25] Atlanta#2
+[2026/03/01 04:25] Newyork#4
+[2026/03/01 04:25] Paris#4
+[2026/03/01 04:43] Seattle#3
+[2026/03/01 04:44] Miami#1
+[2026/03/01 04:46] Stpetersburg#3
+[2026/03/01 04:49] Chicago#1
+[2026/03/01 04:50] Singapore#4
+[2026/03/01 04:55] Miami#2
+[2026/03/01 04:57] Sydney#2
+[2026/03/01 05:00] Frankfurt#6
+[2026/03/01 05:06] Toronto#6
+[2026/03/01 05:13] Sydney#3
+[2026/03/01 05:18] Tokyo#4
+[2026/03/01 05:25] Frankfurt#4
+[2026/03/01 05:36] Paris#2
+[2026/03/01 05:41] Seattle#2
+[2026/03/01 05:46] Paris#5
+[2026/03/01 05:52] Paris#3
+[2026/03/01 05:57] Stpetersburg#2
+[2026/03/01 05:59] Seattle#1
+[2026/03/01 06:02] Losangeles#2
+[2026/03/01 06:03] Singapore#7
+[2026/03/01 06:04] Atlanta#5
+[2026/03/01 06:06] Paris#1
+[2026/03/01 06:09] Miami#4
+[2026/03/01 06:10] Chicago#2
+[2026/03/01 06:12] Losangeles#3
+[2026/03/01 06:17] Frankfurt#3
+[2026/03/01 06:31] Miami#3
+[2026/03/01 06:36] Singapore#3
+[2026/03/01 06:40] Dallas#5
+[2026/03/01 06:40] Siliconvalley#3
+[2026/03/01 06:48] Newyork#3
+[2026/03/01 06:49] Toronto#4
+[2026/03/01 06:50] Singapore#6
+[2026/03/01 06:50] Saopaulo#4
+[2026/03/01 06:51] Saopaulo#2
+[2026/03/01 06:56] Frankfurt#2
+[2026/03/01 06:56] Mumbai#2
+[2026/03/01 06:57] Newyork#1
+[2026/03/01 07:01] Sydney#1
+[2026/03/01 07:11] Tokyo#1
+[2026/03/01 07:14] Tokyo#3
+[2026/03/01 07:14] Mumbai#3
+[2026/03/01 07:15] Saopaulo#1
+[2026/03/01 07:17] Tokyo#2
+[2026/03/01 07:26] Dallas#3
+[2026/03/01 07:26] Stpetersburg#1
+[2026/03/01 07:30] Atlanta#3
+[2026/03/01 07:32] Saopaulo#3
+[2026/03/01 07:35] Toronto#1
+[2026/03/01 07:36] Atlanta#4
+[2026/03/01 07:37] Frankfurt#5
+[2026/03/01 07:42] Toronto#2
+[2026/03/01 07:44] Toronto#5
+[2026/03/01 07:44] Chicago#4
+[2026/03/01 07:55] Siliconvalley#4
+[2026/03/01 08:00] Toronto#3
+[2026/03/01 08:01] Dallas#1
+[2026/03/01 08:01] Singapore#1
+[2026/03/01 08:03] Singapore#5
+[2026/03/01 08:04] Singapore#9
+[2026/03/01 08:10] Siliconvalley#2
+[2026/03/01 08:25] Siliconvalley#1
+[2026/03/01 08:34] Dallas#2
+[2026/03/01 08:46] Atlanta#1
+[2026/03/01 08:48] Frankfurt#7
+[2026/03/01 08:50] Stpetersburg#4
+[2026/03/01 08:55] Singapore#8
+[2026/03/01 08:56] Singapore#2
+[2026/03/01 09:04] Chicago#3
+[2026/03/01 09:04] Mumbai#1
+[2026/03/01 09:05] Atlanta#6
+[2026/03/01 09:07] Chicago#5
+[2026/03/01 09:17] Frankfurt#1
+[2026/03/01 09:23] Paris#6
+[2026/03/01 09:23] Newyork#2
+[2026/03/01 09:49] Losangeles#1
+[2026/03/01 09:54] Dallas#4
+[2026/03/01 10:03] Atlanta#2
+[2026/03/01 10:03] Newyork#4
+[2026/03/01 10:03] Paris#4
+[2026/03/01 10:21] Seattle#3
+[2026/03/01 10:22] Miami#1
+[2026/03/01 10:25] Stpetersburg#3
+[2026/03/01 10:28] Chicago#1
+[2026/03/01 10:28] Singapore#4
+[2026/03/01 10:34] Miami#2
+[2026/03/01 10:35] Sydney#2
+[2026/03/01 10:38] Frankfurt#6
+[2026/03/01 10:45] Toronto#6
+[2026/03/01 10:52] Sydney#3
+[2026/03/01 10:56] Tokyo#4
+[2026/03/01 11:03] Frankfurt#4
+[2026/03/01 11:14] Paris#2
+[2026/03/01 11:19] Seattle#2
+[2026/03/01 11:24] Paris#5
+[2026/03/01 11:30] Paris#3
+[2026/03/01 11:35] Stpetersburg#2
+[2026/03/01 11:37] Seattle#1
+[2026/03/01 11:40] Losangeles#2
+[2026/03/01 11:41] Singapore#7
+[2026/03/01 11:42] Atlanta#5
+[2026/03/01 11:44] Paris#1
+[2026/03/01 11:47] Miami#4
+[2026/03/01 11:48] Chicago#2
+[2026/03/01 11:50] Losangeles#3
+[2026/03/01 11:55] Frankfurt#3
+[2026/03/01 12:10] Miami#3
+[2026/03/01 12:14] Singapore#3
+[2026/03/01 12:18] Dallas#5
+[2026/03/01 12:18] Siliconvalley#3
+[2026/03/01 12:26] Newyork#3
+[2026/03/01 12:28] Toronto#4
+[2026/03/01 12:29] Singapore#6
+[2026/03/01 12:29] Saopaulo#2
+[2026/03/01 12:29] Saopaulo#4
+[2026/03/01 12:34] Mumbai#2
+[2026/03/01 12:34] Frankfurt#2
+[2026/03/01 12:35] Newyork#1
+[2026/03/01 12:39] Sydney#1
+[2026/03/01 12:52] Tokyo#3
+[2026/03/01 12:52] Tokyo#1
+[2026/03/01 12:52] Mumbai#3
+[2026/03/01 12:54] Saopaulo#1
+[2026/03/01 12:55] Tokyo#2
+[2026/03/01 13:04] Dallas#3
+[2026/03/01 13:04] Stpetersburg#1
+[2026/03/01 13:09] Atlanta#3
+[2026/03/01 13:10] Saopaulo#3
+[2026/03/01 13:13] Toronto#1
+[2026/03/01 13:14] Atlanta#4
+[2026/03/01 13:15] Frankfurt#5
+[2026/03/01 13:20] Toronto#2
+[2026/03/01 13:22] Chicago#4
+[2026/03/01 13:22] Toronto#5
+[2026/03/01 13:34] Siliconvalley#4
+[2026/03/01 13:39] Toronto#3
+[2026/03/01 13:40] Dallas#1
+[2026/03/01 13:40] Singapore#1
+[2026/03/01 13:41] Singapore#5
+[2026/03/01 13:42] Singapore#9
+[2026/03/01 13:48] Siliconvalley#2
+[2026/03/01 14:03] Siliconvalley#1
+[2026/03/01 14:12] Dallas#2
+[2026/03/01 14:24] Atlanta#1
+[2026/03/01 14:26] Frankfurt#7
+[2026/03/01 14:30] Stpetersburg#4
+[2026/03/01 14:34] Singapore#8
+[2026/03/01 14:34] Singapore#2
+[2026/03/01 14:42] Mumbai#1
+[2026/03/01 14:43] Atlanta#6
+[2026/03/01 14:43] Chicago#3
+[2026/03/01 14:45] Chicago#5
+[2026/03/01 14:55] Frankfurt#1
+[2026/03/01 15:01] Newyork#2
+[2026/03/01 15:01] Paris#6
+[2026/03/01 15:28] Losangeles#1
+[2026/03/01 15:32] Dallas#4
+[2026/03/01 15:41] Atlanta#2
+[2026/03/01 15:41] Newyork#4
+[2026/03/01 15:41] Paris#4
+[2026/03/01 16:00] Seattle#3
+[2026/03/01 16:00] Miami#1
+[2026/03/01 16:04] Stpetersburg#3
+[2026/03/01 16:06] Chicago#1
+[2026/03/01 16:07] Singapore#4
+[2026/03/01 16:13] Miami#2
+[2026/03/01 16:14] Sydney#2
+[2026/03/01 16:16] Frankfurt#6
+[2026/03/01 16:23] Toronto#6
+[2026/03/01 16:30] Sydney#3
+[2026/03/01 16:34] Tokyo#4
+[2026/03/01 16:42] Frankfurt#4
+[2026/03/01 16:52] Paris#2
+[2026/03/01 16:58] Seattle#2
+[2026/03/01 17:02] Paris#5
+[2026/03/01 17:09] Paris#3
+[2026/03/01 17:14] Stpetersburg#2
+[2026/03/01 17:16] Seattle#1
+[2026/03/01 17:18] Losangeles#2
+[2026/03/01 17:20] Singapore#7
+[2026/03/01 17:20] Atlanta#5
+[2026/03/01 17:22] Paris#1
+[2026/03/01 17:25] Miami#4
+[2026/03/01 17:27] Chicago#2
+[2026/03/01 17:28] Losangeles#3
+[2026/03/01 17:33] Frankfurt#3
+[2026/03/01 17:48] Miami#3
+[2026/03/01 17:53] Singapore#3
+[2026/03/01 17:56] Dallas#5
+[2026/03/01 17:57] Siliconvalley#3
+[2026/03/01 18:04] Newyork#3
+[2026/03/01 18:06] Toronto#4
+[2026/03/01 18:07] Singapore#6
+[2026/03/01 18:07] Saopaulo#4
+[2026/03/01 18:07] Saopaulo#2
+[2026/03/01 18:12] Mumbai#2
+[2026/03/01 18:13] Frankfurt#2
+[2026/03/01 18:13] Newyork#1
+[2026/03/01 18:17] Sydney#1
+[2026/03/01 18:31] Tokyo#3
+[2026/03/01 18:31] Mumbai#3
+[2026/03/01 18:32] Saopaulo#1
+[2026/03/01 18:33] Tokyo#1
+[2026/03/01 18:34] Tokyo#2
+[2026/03/01 18:42] Dallas#3
+[2026/03/01 18:42] Stpetersburg#1
+[2026/03/01 18:47] Atlanta#3
+[2026/03/01 18:48] Saopaulo#3
+[2026/03/01 18:51] Toronto#1
+[2026/03/01 18:52] Atlanta#4
+[2026/03/01 18:54] Frankfurt#5
+[2026/03/01 18:58] Toronto#2
+[2026/03/01 19:00] Chicago#4
+[2026/03/01 19:00] Toronto#5
+[2026/03/01 19:12] Siliconvalley#4
+[2026/03/01 19:17] Toronto#3
+[2026/03/01 19:18] Singapore#1
+[2026/03/01 19:18] Dallas#1
+[2026/03/01 19:19] Singapore#5
+[2026/03/01 19:21] Singapore#9
+[2026/03/01 19:26] Siliconvalley#2
+[2026/03/01 19:41] Siliconvalley#1
+[2026/03/01 19:51] Dallas#2
+[2026/03/01 20:02] Atlanta#1
+[2026/03/01 20:04] Frankfurt#7
+[2026/03/01 20:09] Stpetersburg#4
+[2026/03/01 20:12] Singapore#8
+[2026/03/01 20:13] Singapore#2
+[2026/03/01 20:21] Atlanta#6
+[2026/03/01 20:21] Chicago#3
+[2026/03/01 20:22] Mumbai#1
+[2026/03/01 20:23] Chicago#5
+[2026/03/01 20:33] Frankfurt#1
+[2026/03/01 20:39] Newyork#2
+[2026/03/01 20:39] Paris#6
+[2026/03/01 21:06] Losangeles#1
+[2026/03/01 21:11] Dallas#4
+[2026/03/01 21:19] Newyork#4
+[2026/03/01 21:19] Paris#4
+[2026/03/01 21:20] Atlanta#2
+[2026/03/01 21:38] Seattle#3
+[2026/03/01 21:39] Miami#1
+[2026/03/01 21:43] Stpetersburg#3
+[2026/03/01 21:45] Chicago#1
+[2026/03/01 21:45] Singapore#4
+[2026/03/01 21:51] Miami#2
+[2026/03/01 21:53] Sydney#2
+[2026/03/01 21:55] Frankfurt#6
+[2026/03/01 22:01] Toronto#6
+[2026/03/01 22:09] Sydney#3
+[2026/03/01 22:13] Tokyo#4
+[2026/03/01 22:20] Frankfurt#4
+[2026/03/01 22:30] Paris#2
+[2026/03/01 22:36] Seattle#2
+[2026/03/01 22:40] Paris#5
+[2026/03/01 22:47] Paris#3
+[2026/03/01 22:52] Stpetersburg#2
+[2026/03/01 22:54] Seattle#1
+[2026/03/01 22:57] Losangeles#2
+[2026/03/01 22:58] Singapore#7
+[2026/03/01 22:58] Atlanta#5
+[2026/03/01 23:00] Paris#1
+[2026/03/01 23:03] Miami#4
+[2026/03/01 23:05] Chicago#2
+[2026/03/01 23:07] Losangeles#3
+[2026/03/01 23:12] Frankfurt#3
+[2026/03/01 23:26] Miami#3
+[2026/03/01 23:31] Singapore#3
+[2026/03/01 23:34] Dallas#5
+[2026/03/01 23:35] Siliconvalley#3
+[2026/03/01 23:43] Newyork#3
+[2026/03/01 23:44] Toronto#4
+[2026/03/01 23:45] Saopaulo#4
+[2026/03/01 23:45] Singapore#6
+[2026/03/01 23:45] Saopaulo#2
+[2026/03/01 23:51] Mumbai#2
+[2026/03/01 23:51] Frankfurt#2
+[2026/03/01 23:51] Newyork#1
+[2026/03/01 23:55] Sydney#1
+[2026/03/02 00:09] Mumbai#3
+[2026/03/02 00:09] Tokyo#3
+[2026/03/02 00:10] Saopaulo#1
+[2026/03/02 00:12] Tokyo#2
+[2026/03/02 00:12] Tokyo#1
+[2026/03/02 00:20] Dallas#3
+[2026/03/02 00:21] Stpetersburg#1
+[2026/03/02 00:25] Atlanta#3
+[2026/03/02 00:27] Saopaulo#3
+[2026/03/02 00:29] Toronto#1
+[2026/03/02 00:31] Atlanta#4
+[2026/03/02 00:32] Frankfurt#5
+[2026/03/02 00:37] Toronto#2
+[2026/03/02 00:38] Chicago#4
+[2026/03/02 00:39] Toronto#5
+[2026/03/02 00:50] Siliconvalley#4
+[2026/03/02 00:55] Toronto#3
+[2026/03/02 00:56] Singapore#1
+[2026/03/02 00:57] Dallas#1
+[2026/03/02 00:57] Singapore#5
+[2026/03/02 01:02] Singapore#9
+[2026/03/02 01:05] Siliconvalley#2
+[2026/03/02 01:20] Siliconvalley#1
+[2026/03/02 01:29] Dallas#2
+[2026/03/02 01:41] Atlanta#1
+[2026/03/02 01:42] Frankfurt#7
+[2026/03/02 01:48] Stpetersburg#4
+[2026/03/02 01:51] Singapore#8
+[2026/03/02 01:51] Singapore#2
+[2026/03/02 01:59] Chicago#3
+[2026/03/02 01:59] Atlanta#6
+[2026/03/02 02:00] Mumbai#1
+[2026/03/02 02:02] Chicago#5
+[2026/03/02 02:11] Frankfurt#1
+[2026/03/02 02:17] Paris#6
+[2026/03/02 02:17] Newyork#2
+[2026/03/02 02:44] Losangeles#1
+[2026/03/02 02:49] Dallas#4
+[2026/03/02 02:57] Newyork#4
+[2026/03/02 02:58] Paris#4
+[2026/03/02 02:58] Atlanta#2
+[2026/03/02 03:16] Seattle#3
+[2026/03/02 03:17] Miami#1
+[2026/03/02 03:22] Stpetersburg#3
+[2026/03/02 03:23] Chicago#1
+[2026/03/02 03:23] Singapore#4
+[2026/03/02 03:29] Miami#2
+[2026/03/02 03:31] Sydney#2
+[2026/03/02 03:33] Frankfurt#6
+[2026/03/02 03:40] Toronto#6
+[2026/03/02 03:47] Sydney#3
+[2026/03/02 03:51] Tokyo#4
+[2026/03/02 03:59] Frankfurt#4
+[2026/03/02 04:08] Paris#2
+[2026/03/02 04:14] Seattle#2
+[2026/03/02 04:18] Paris#5
+[2026/03/02 04:25] Paris#3
+[2026/03/02 04:31] Stpetersburg#2
+[2026/03/02 04:32] Seattle#1
+[2026/03/02 04:35] Losangeles#2
+[2026/03/02 04:36] Singapore#7
+[2026/03/02 04:36] Atlanta#5
+[2026/03/02 04:39] Paris#1
+[2026/03/02 04:42] Miami#4
+[2026/03/02 04:43] Chicago#2
+[2026/03/02 04:45] Losangeles#3
+[2026/03/02 04:50] Frankfurt#3
+[2026/03/02 05:04] Miami#3
+[2026/03/02 05:09] Singapore#3
+[2026/03/02 05:12] Dallas#5
+[2026/03/02 05:13] Siliconvalley#3
+[2026/03/02 05:21] Newyork#3
+[2026/03/02 05:22] Toronto#4
+[2026/03/02 05:23] Singapore#6
+[2026/03/02 05:23] Saopaulo#2
+[2026/03/02 05:24] Saopaulo#4
+[2026/03/02 05:29] Mumbai#2
+[2026/03/02 05:29] Frankfurt#2
+[2026/03/02 05:30] Newyork#1
+[2026/03/02 05:34] Sydney#1
+[2026/03/02 05:47] Mumbai#3
+[2026/03/02 05:47] Tokyo#3
+[2026/03/02 05:48] Saopaulo#1
+[2026/03/02 05:50] Tokyo#2
+[2026/03/02 05:50] Tokyo#1
+[2026/03/02 05:58] Dallas#3
+[2026/03/02 05:59] Stpetersburg#1
+[2026/03/02 06:04] Atlanta#3
+[2026/03/02 06:05] Saopaulo#3
+[2026/03/02 06:07] Toronto#1
+[2026/03/02 06:09] Atlanta#4
+[2026/03/02 06:10] Frankfurt#5
+[2026/03/02 06:15] Toronto#2
+[2026/03/02 06:16] Chicago#4
+[2026/03/02 06:17] Toronto#5
+[2026/03/02 06:28] Siliconvalley#4
+[2026/03/02 06:33] Toronto#3
+[2026/03/02 06:34] Singapore#1
+[2026/03/02 06:35] Dallas#1
+[2026/03/02 06:36] Singapore#5
+[2026/03/02 06:40] Singapore#9
+[2026/03/02 06:43] Siliconvalley#2
+[2026/03/02 06:58] Siliconvalley#1
+[2026/03/02 07:07] Dallas#2
+[2026/03/02 07:19] Atlanta#1
+[2026/03/02 07:21] Frankfurt#7
+[2026/03/02 07:26] Stpetersburg#4
+[2026/03/02 07:29] Singapore#8
+[2026/03/02 07:29] Singapore#2
+[2026/03/02 07:38] Atlanta#6
+[2026/03/02 07:38] Chicago#3
+[2026/03/02 07:38] Mumbai#1
+[2026/03/02 07:40] Chicago#5
+[2026/03/02 07:50] Frankfurt#1
+[2026/03/02 07:55] Paris#6
+[2026/03/02 07:55] Newyork#2
+[2026/03/02 08:22] Losangeles#1
+[2026/03/02 08:27] Dallas#4
+[2026/03/02 08:36] Newyork#4
+[2026/03/02 08:36] Paris#4
+[2026/03/02 08:36] Atlanta#2
+[2026/03/02 08:54] Seattle#3
+[2026/03/02 08:55] Miami#1
+[2026/03/02 09:01] Stpetersburg#3
+[2026/03/02 09:01] Chicago#1
+[2026/03/02 09:01] Singapore#4
+[2026/03/02 09:08] Miami#2
+[2026/03/02 09:09] Sydney#2
+[2026/03/02 09:11] Frankfurt#6
+[2026/03/02 09:18] Toronto#6
+[2026/03/02 09:25] Sydney#3
+[2026/03/02 09:29] Tokyo#4
+[2026/03/02 09:37] Frankfurt#4
+[2026/03/02 09:46] Paris#2
+[2026/03/02 09:52] Seattle#2
+[2026/03/02 09:57] Paris#5
+[2026/03/02 10:03] Paris#3
+[2026/03/02 10:09] Stpetersburg#2
+[2026/03/02 10:10] Seattle#1
+[2026/03/02 10:13] Losangeles#2
+[2026/03/02 10:15] Singapore#7
+[2026/03/02 10:15] Atlanta#5
+[2026/03/02 10:17] Paris#1
+[2026/03/02 10:20] Miami#4
+[2026/03/02 10:21] Chicago#2
+[2026/03/02 10:25] Losangeles#3
+[2026/03/02 10:28] Frankfurt#3
+[2026/03/02 10:42] Miami#3
+[2026/03/02 10:47] Singapore#3
+[2026/03/02 10:51] Dallas#5
+[2026/03/02 10:51] Siliconvalley#3
+[2026/03/02 10:59] Newyork#3
+[2026/03/02 11:01] Toronto#4
+[2026/03/02 11:01] Singapore#6
+[2026/03/02 11:02] Saopaulo#4
+[2026/03/02 11:02] Saopaulo#2
+[2026/03/02 11:07] Mumbai#2
+[2026/03/02 11:07] Frankfurt#2
+[2026/03/02 11:08] Newyork#1
+[2026/03/02 11:12] Sydney#1
+[2026/03/02 11:25] Mumbai#3
+[2026/03/02 11:26] Tokyo#3
+[2026/03/02 11:26] Saopaulo#1
+[2026/03/02 11:28] Tokyo#2
+[2026/03/02 11:28] Tokyo#1
+[2026/03/02 11:36] Dallas#3
+[2026/03/02 11:37] Stpetersburg#1
+[2026/03/02 11:42] Atlanta#3
+[2026/03/02 11:43] Saopaulo#3
+[2026/03/02 11:46] Toronto#1
+[2026/03/02 11:47] Atlanta#4
+[2026/03/02 11:49] Frankfurt#5
+[2026/03/02 11:53] Toronto#2
+[2026/03/02 11:54] Chicago#4
+[2026/03/02 11:55] Toronto#5
+[2026/03/02 12:06] Siliconvalley#4
+[2026/03/02 12:11] Toronto#3
+[2026/03/02 12:13] Singapore#1
+[2026/03/02 12:13] Dallas#1
+[2026/03/02 12:14] Singapore#5
+[2026/03/02 12:18] Singapore#9
+[2026/03/02 12:22] Siliconvalley#2
+[2026/03/02 12:36] Siliconvalley#1
+[2026/03/02 12:45] Dallas#2
+[2026/03/02 12:58] Atlanta#1
+[2026/03/02 12:59] Frankfurt#7
+[2026/03/02 13:05] Stpetersburg#4
+[2026/03/02 13:07] Singapore#8
+[2026/03/02 13:07] Singapore#2
+[2026/03/02 13:16] Chicago#3
+[2026/03/02 13:16] Atlanta#6
+[2026/03/02 13:16] Mumbai#1
+[2026/03/02 13:18] Chicago#5
+[2026/03/02 13:28] Frankfurt#1
+[2026/03/02 13:33] Paris#6
+[2026/03/02 13:33] Newyork#2
+[2026/03/02 14:00] Losangeles#1
+[2026/03/02 14:05] Dallas#4
+[2026/03/02 14:14] Newyork#4
+[2026/03/02 14:14] Paris#4
+[2026/03/02 14:15] Atlanta#2
+[2026/03/02 14:32] Seattle#3
+[2026/03/02 14:33] Miami#1
+[2026/03/02 14:39] Chicago#1
+[2026/03/02 14:39] Stpetersburg#3
+[2026/03/02 14:40] Singapore#4
+[2026/03/02 14:45] Miami#2
+[2026/03/02 14:48] Sydney#2
+[2026/03/02 14:49] Frankfurt#6
+[2026/03/02 14:56] Toronto#6
+[2026/03/02 15:04] Sydney#3
+[2026/03/02 15:07] Tokyo#4
+[2026/03/02 15:16] Frankfurt#4
+[2026/03/02 15:24] Paris#2
+[2026/03/02 15:30] Seattle#2
+[2026/03/02 15:35] Paris#5
+[2026/03/02 15:42] Paris#3
+[2026/03/02 15:48] Stpetersburg#2
+[2026/03/02 15:48] Seattle#1
+[2026/03/02 15:51] Losangeles#2
+[2026/03/02 15:53] Singapore#7
+[2026/03/02 15:53] Atlanta#5
+[2026/03/02 15:55] Paris#1
+[2026/03/02 15:58] Miami#4
+[2026/03/02 16:00] Chicago#2
+[2026/03/02 16:04] Losangeles#3
+[2026/03/02 16:06] Frankfurt#3
+[2026/03/02 16:20] Miami#3
+[2026/03/02 16:25] Singapore#3
+[2026/03/02 16:29] Dallas#5
+[2026/03/02 16:29] Siliconvalley#3
+[2026/03/02 16:37] Newyork#3
+[2026/03/02 16:39] Toronto#4
+[2026/03/02 16:39] Singapore#6
+[2026/03/02 16:40] Saopaulo#4
+[2026/03/02 16:40] Saopaulo#2
+[2026/03/02 16:45] Mumbai#2
+[2026/03/02 16:46] Frankfurt#2
+[2026/03/02 16:46] Newyork#1
+[2026/03/02 16:50] Sydney#1
+[2026/03/02 17:03] Mumbai#3
+[2026/03/02 17:04] Saopaulo#1
+[2026/03/02 17:04] Tokyo#3
+[2026/03/02 17:06] Tokyo#1
+[2026/03/02 17:06] Tokyo#2
+[2026/03/02 17:14] Dallas#3
+[2026/03/02 17:15] Stpetersburg#1
+[2026/03/02 17:21] Atlanta#3
+[2026/03/02 17:21] Saopaulo#3
+[2026/03/02 17:24] Toronto#1
+[2026/03/02 17:25] Atlanta#4
+[2026/03/02 17:27] Frankfurt#5
+[2026/03/02 17:31] Toronto#2
+[2026/03/02 17:33] Chicago#4
+[2026/03/02 17:34] Toronto#5
+[2026/03/02 17:44] Siliconvalley#4
+[2026/03/02 17:49] Toronto#3
+[2026/03/02 17:51] Singapore#1
+[2026/03/02 17:51] Dallas#1
+[2026/03/02 17:52] Singapore#5
+[2026/03/02 17:56] Singapore#9
+[2026/03/02 18:00] Siliconvalley#2
+[2026/03/02 18:14] Siliconvalley#1
+[2026/03/02 18:24] Dallas#2
+[2026/03/02 18:36] Atlanta#1
+[2026/03/02 18:37] Frankfurt#7
+[2026/03/02 18:44] Stpetersburg#4
+[2026/03/02 18:45] Singapore#8
+[2026/03/02 18:46] Singapore#2
+[2026/03/02 18:54] Atlanta#6
+[2026/03/02 18:54] Chicago#3
+[2026/03/02 18:55] Mumbai#1
+[2026/03/02 18:56] Chicago#5
+[2026/03/02 19:06] Frankfurt#1
+[2026/03/02 19:11] Paris#6
+[2026/03/02 19:12] Newyork#2
+[2026/03/02 19:38] Losangeles#1
+[2026/03/02 19:43] Dallas#4
+[2026/03/02 19:52] Newyork#4
+[2026/03/02 19:52] Paris#4
+[2026/03/02 19:53] Atlanta#2
+[2026/03/02 20:10] Seattle#3
+[2026/03/02 20:11] Miami#1
+[2026/03/02 20:18] Chicago#1
+[2026/03/02 20:18] Singapore#4
+[2026/03/02 20:18] Stpetersburg#3
+[2026/03/02 20:24] Miami#2
+[2026/03/02 20:27] Sydney#2
+[2026/03/02 20:27] Frankfurt#6
+[2026/03/02 20:35] Toronto#6
+[2026/03/02 20:43] Sydney#3
+[2026/03/02 20:45] Tokyo#4
+[2026/03/02 20:54] Frankfurt#4
+[2026/03/02 21:03] Paris#2
+[2026/03/02 21:08] Seattle#2
+[2026/03/02 21:13] Paris#5
+[2026/03/02 21:20] Paris#3
+[2026/03/02 21:26] Seattle#1
+[2026/03/02 21:26] Stpetersburg#2
+[2026/03/02 21:30] Losangeles#2
+[2026/03/02 21:31] Singapore#7
+[2026/03/02 21:31] Atlanta#5
+[2026/03/02 21:33] Paris#1
+[2026/03/02 21:36] Miami#4
+[2026/03/02 21:38] Chicago#2
+[2026/03/02 21:43] Losangeles#3
+[2026/03/02 21:45] Frankfurt#3
+[2026/03/02 21:58] Miami#3
+[2026/03/02 22:04] Singapore#3
+[2026/03/02 22:07] Dallas#5
+[2026/03/02 22:08] Siliconvalley#3
+[2026/03/02 22:15] Newyork#3
+[2026/03/02 22:17] Toronto#4
+[2026/03/02 22:18] Singapore#6
+[2026/03/02 22:18] Saopaulo#4
+[2026/03/02 22:18] Saopaulo#2
+[2026/03/02 22:23] Mumbai#2
+[2026/03/02 22:24] Newyork#1
+[2026/03/02 22:24] Frankfurt#2
+[2026/03/02 22:28] Sydney#1
+[2026/03/02 22:42] Mumbai#3
+[2026/03/02 22:43] Saopaulo#1
+[2026/03/02 22:43] Tokyo#3
+[2026/03/02 22:44] Tokyo#1
+[2026/03/02 22:45] Tokyo#2
+[2026/03/02 22:53] Dallas#3
+[2026/03/02 22:53] Stpetersburg#1
+[2026/03/02 22:59] Atlanta#3
+[2026/03/02 22:59] Saopaulo#3
+[2026/03/02 23:02] Toronto#1
+[2026/03/02 23:03] Atlanta#4
+[2026/03/02 23:05] Frankfurt#5
+[2026/03/02 23:09] Toronto#2
+[2026/03/02 23:11] Chicago#4
+[2026/03/02 23:12] Toronto#5
+[2026/03/02 23:22] Siliconvalley#4
+[2026/03/02 23:28] Toronto#3
+[2026/03/02 23:29] Dallas#1
+[2026/03/02 23:31] Singapore#5
+[2026/03/02 23:32] Singapore#1
+[2026/03/02 23:34] Singapore#9
+[2026/03/02 23:38] Siliconvalley#2
+[2026/03/02 23:52] Siliconvalley#1
+[2026/03/03 00:02] Dallas#2
+[2026/03/03 00:14] Atlanta#1
+[2026/03/03 00:15] Frankfurt#7
+[2026/03/03 00:23] Stpetersburg#4
+[2026/03/03 00:24] Singapore#8
+[2026/03/03 00:25] Singapore#2
+[2026/03/03 00:32] Atlanta#6
+[2026/03/03 00:32] Chicago#3
+[2026/03/03 00:33] Mumbai#1
+[2026/03/03 00:35] Chicago#5
+[2026/03/03 00:44] Frankfurt#1
+[2026/03/03 00:50] Paris#6
+[2026/03/03 00:50] Newyork#2
+[2026/03/03 01:17] Losangeles#1
+[2026/03/03 01:22] Dallas#4
+[2026/03/03 01:30] Newyork#4
+[2026/03/03 01:31] Atlanta#2
+[2026/03/03 01:31] Paris#4
+[2026/03/03 01:48] Seattle#3
+[2026/03/03 01:50] Miami#1
+[2026/03/03 01:56] Chicago#1
+[2026/03/03 01:56] Singapore#4
+[2026/03/03 01:57] Stpetersburg#3
+[2026/03/03 02:02] Miami#2
+[2026/03/03 02:05] Sydney#2
+[2026/03/03 02:06] Frankfurt#6
+[2026/03/03 02:13] Toronto#6
+[2026/03/03 02:21] Sydney#3
+[2026/03/03 02:23] Tokyo#4
+[2026/03/03 02:33] Frankfurt#4
+[2026/03/03 02:41] Paris#2
+[2026/03/03 02:47] Seattle#2
+[2026/03/03 02:52] Paris#5
+[2026/03/03 02:58] Paris#3
+[2026/03/03 03:04] Seattle#1
+[2026/03/03 03:05] Stpetersburg#2
+[2026/03/03 03:08] Losangeles#2
+[2026/03/03 03:10] Singapore#7
+[2026/03/03 03:10] Atlanta#5
+[2026/03/03 03:11] Paris#1
+[2026/03/03 03:14] Miami#4
+[2026/03/03 03:17] Chicago#2
+[2026/03/03 03:21] Losangeles#3
+[2026/03/03 03:23] Frankfurt#3
+[2026/03/03 03:42] Singapore#3
+[2026/03/03 03:46] Dallas#5
+[2026/03/03 03:46] Siliconvalley#3
+[2026/03/03 03:53] Newyork#3
+[2026/03/03 03:56] Toronto#4
+[2026/03/03 03:56] Singapore#6
+[2026/03/03 03:56] Saopaulo#4
+[2026/03/03 03:57] Saopaulo#2
+[2026/03/03 04:02] Mumbai#2
+[2026/03/03 04:02] Newyork#1
+[2026/03/03 04:02] Frankfurt#2
+[2026/03/03 04:06] Sydney#1
+[2026/03/03 04:20] Mumbai#3
+[2026/03/03 04:21] Saopaulo#1
+[2026/03/03 04:21] Tokyo#3
+[2026/03/03 04:23] Tokyo#1
+[2026/03/03 04:23] Tokyo#2
+[2026/03/03 04:31] Dallas#3
+[2026/03/03 04:31] Stpetersburg#1
+[2026/03/03 04:38] Saopaulo#3
+[2026/03/03 04:38] Atlanta#3
+[2026/03/03 04:40] Toronto#1
+[2026/03/03 04:42] Atlanta#4
+[2026/03/03 04:43] Frankfurt#5
+[2026/03/03 04:48] Toronto#2
+[2026/03/03 04:49] Chicago#4
+[2026/03/03 04:50] Toronto#5
+[2026/03/03 05:00] Siliconvalley#4
+[2026/03/03 05:06] Toronto#3
+[2026/03/03 05:08] Dallas#1
+[2026/03/03 05:09] Singapore#5
+[2026/03/03 05:10] Singapore#1
+[2026/03/03 05:13] Singapore#9
+[2026/03/03 05:16] Siliconvalley#2
+[2026/03/03 05:30] Siliconvalley#1
+[2026/03/03 05:41] Dallas#2
+[2026/03/03 05:53] Atlanta#1
+[2026/03/03 05:53] Frankfurt#7
+[2026/03/03 06:01] Stpetersburg#4
+[2026/03/03 06:02] Singapore#8
+[2026/03/03 06:03] Singapore#2
+[2026/03/03 06:10] Chicago#3
+[2026/03/03 06:11] Atlanta#6
+[2026/03/03 06:12] Mumbai#1
+[2026/03/03 06:13] Chicago#5
+[2026/03/03 06:22] Frankfurt#1
+[2026/03/03 06:28] Paris#6
+[2026/03/03 06:28] Newyork#2
+[2026/03/03 06:55] Losangeles#1
+[2026/03/03 07:00] Dallas#4
+[2026/03/03 07:09] Newyork#4
+[2026/03/03 07:09] Paris#4
+[2026/03/03 07:09] Atlanta#2
+[2026/03/03 07:27] Seattle#3
+[2026/03/03 07:28] Miami#1
+[2026/03/03 07:34] Chicago#1
+[2026/03/03 07:34] Singapore#4
+[2026/03/03 07:35] Stpetersburg#3
+[2026/03/03 07:40] Miami#2
+[2026/03/03 07:43] Sydney#2
+[2026/03/03 07:44] Frankfurt#6
+[2026/03/03 07:52] Toronto#6
+[2026/03/03 08:00] Sydney#3
+[2026/03/03 08:01] Tokyo#4
+[2026/03/03 08:11] Frankfurt#4
+[2026/03/03 08:19] Paris#2
+[2026/03/03 08:25] Seattle#2
+[2026/03/03 08:30] Paris#5
+[2026/03/03 08:36] Paris#3
+[2026/03/03 08:43] Seattle#1
+[2026/03/03 08:43] Stpetersburg#2
+[2026/03/03 08:46] Losangeles#2
+[2026/03/03 08:48] Singapore#7
+[2026/03/03 08:48] Atlanta#5
+[2026/03/03 08:49] Paris#1
+[2026/03/03 08:53] Miami#4
+[2026/03/03 08:55] Chicago#2
+[2026/03/03 08:59] Losangeles#3
+[2026/03/03 09:01] Frankfurt#3
+[2026/03/03 09:15] Miami#3
+[2026/03/03 09:20] Singapore#3
+[2026/03/03 09:24] Dallas#5
+[2026/03/03 09:24] Siliconvalley#3
+[2026/03/03 09:32] Newyork#3
+[2026/03/03 09:34] Singapore#6
+[2026/03/03 09:34] Toronto#4
+[2026/03/03 09:35] Saopaulo#2
+[2026/03/03 09:35] Saopaulo#4
+[2026/03/03 09:40] Mumbai#2
+[2026/03/03 09:40] Frankfurt#2
+[2026/03/03 09:41] Newyork#1
+[2026/03/03 09:45] Sydney#1
+[2026/03/03 09:58] Mumbai#3
+[2026/03/03 09:59] Saopaulo#1
+[2026/03/03 09:59] Tokyo#3
+[2026/03/03 10:01] Tokyo#1
+[2026/03/03 10:01] Tokyo#2
+[2026/03/03 10:09] Dallas#3
+[2026/03/03 10:10] Stpetersburg#1
+[2026/03/03 10:16] Atlanta#3
+[2026/03/03 10:16] Saopaulo#3
+[2026/03/03 10:18] Toronto#1
+[2026/03/03 10:20] Atlanta#4
+[2026/03/03 10:21] Frankfurt#5
+[2026/03/03 10:26] Toronto#2
+[2026/03/03 10:27] Chicago#4
+[2026/03/03 10:29] Toronto#5
+[2026/03/03 10:39] Siliconvalley#4
+[2026/03/03 10:44] Toronto#3
+[2026/03/03 10:46] Dallas#1
+[2026/03/03 10:47] Singapore#5
+[2026/03/03 10:48] Singapore#1
+[2026/03/03 10:51] Singapore#9
+[2026/03/03 10:55] Siliconvalley#2
+[2026/03/03 11:08] Siliconvalley#1
+[2026/03/03 11:19] Dallas#2
+[2026/03/03 11:32] Atlanta#1
+[2026/03/03 11:32] Frankfurt#7
+[2026/03/03 11:40] Stpetersburg#4
+[2026/03/03 11:41] Singapore#2
+[2026/03/03 11:41] Singapore#8
+[2026/03/03 11:49] Chicago#3
+[2026/03/03 11:49] Atlanta#6
+[2026/03/03 11:50] Mumbai#1
+[2026/03/03 11:51] Chicago#5
+[2026/03/03 12:00] Frankfurt#1
+[2026/03/03 12:06] Paris#6
+[2026/03/03 12:07] Newyork#2
+[2026/03/03 12:33] Losangeles#1
+[2026/03/03 12:38] Dallas#4
+[2026/03/03 12:47] Newyork#4
+[2026/03/03 12:47] Paris#4
+[2026/03/03 12:48] Atlanta#2
+[2026/03/03 13:05] Seattle#3
+[2026/03/03 13:06] Miami#1
+[2026/03/03 13:12] Chicago#1
+[2026/03/03 13:13] Singapore#4
+[2026/03/03 13:14] Stpetersburg#3
+[2026/03/03 13:18] Miami#2
+[2026/03/03 13:22] Sydney#2
+[2026/03/03 13:22] Frankfurt#6
+[2026/03/03 13:30] Toronto#6
+[2026/03/03 13:38] Sydney#3
+[2026/03/03 13:40] Tokyo#4
+[2026/03/03 13:50] Frankfurt#4
+[2026/03/03 13:57] Paris#2
+[2026/03/03 14:03] Seattle#2
+[2026/03/03 14:08] Paris#5
+[2026/03/03 14:14] Paris#3
+[2026/03/03 14:21] Seattle#1
+[2026/03/03 14:21] Stpetersburg#2
+[2026/03/03 14:24] Losangeles#2
+[2026/03/03 14:26] Singapore#7
+[2026/03/03 14:26] Atlanta#5
+[2026/03/03 14:27] Paris#1
+[2026/03/03 14:31] Miami#4
+[2026/03/03 14:33] Chicago#2
+[2026/03/03 14:38] Losangeles#3
+[2026/03/03 14:40] Frankfurt#3
+[2026/03/03 14:53] Miami#3
+[2026/03/03 14:59] Singapore#3
+[2026/03/03 15:02] Dallas#5
+[2026/03/03 15:02] Siliconvalley#3
+[2026/03/03 15:10] Newyork#3
+[2026/03/03 15:12] Singapore#6
+[2026/03/03 15:12] Toronto#4
+[2026/03/03 15:13] Saopaulo#4
+[2026/03/03 15:13] Saopaulo#2
+[2026/03/03 15:18] Mumbai#2
+[2026/03/03 15:19] Frankfurt#2
+[2026/03/03 15:19] Newyork#1
+[2026/03/03 15:23] Sydney#1
+[2026/03/03 15:37] Mumbai#3
+[2026/03/03 15:37] Saopaulo#1
+[2026/03/03 15:38] Tokyo#3
+[2026/03/03 15:39] Tokyo#1
+[2026/03/03 15:40] Tokyo#2
+[2026/03/03 15:48] Stpetersburg#1
+[2026/03/03 15:48] Dallas#3
+[2026/03/03 15:54] Saopaulo#3
+[2026/03/03 15:54] Atlanta#3
+[2026/03/03 15:56] Toronto#1
+[2026/03/03 15:59] Atlanta#4
+[2026/03/03 15:59] Frankfurt#5
+[2026/03/03 16:04] Toronto#2
+[2026/03/03 16:05] Chicago#4
+[2026/03/03 16:07] Toronto#5
+[2026/03/03 16:17] Siliconvalley#4
+[2026/03/03 16:23] Toronto#3
+[2026/03/03 16:24] Dallas#1
+[2026/03/03 16:26] Singapore#5
+[2026/03/03 16:27] Singapore#1
+[2026/03/03 16:29] Singapore#9
+[2026/03/03 16:33] Siliconvalley#2
+[2026/03/03 16:46] Siliconvalley#1
+[2026/03/03 16:57] Dallas#2
+[2026/03/03 17:10] Atlanta#1
+[2026/03/03 17:10] Frankfurt#7
+[2026/03/03 17:19] Stpetersburg#4
+[2026/03/03 17:19] Singapore#2
+[2026/03/03 17:20] Singapore#8
+[2026/03/03 17:26] Chicago#3
+[2026/03/03 17:27] Atlanta#6
+[2026/03/03 17:28] Mumbai#1
+[2026/03/03 17:30] Chicago#5
+[2026/03/03 17:38] Frankfurt#1
+[2026/03/03 17:44] Paris#6
+[2026/03/03 17:45] Newyork#2
+[2026/03/03 18:11] Losangeles#1
+[2026/03/03 18:17] Dallas#4
+[2026/03/03 18:25] Newyork#4
+[2026/03/03 18:25] Paris#4
+[2026/03/03 18:26] Atlanta#2
+[2026/03/03 18:43] Seattle#3
+[2026/03/03 18:44] Miami#1
+[2026/03/03 18:51] Chicago#1
+[2026/03/03 18:51] Singapore#4
+[2026/03/03 18:53] Stpetersburg#3
+[2026/03/03 18:56] Miami#2
+[2026/03/03 19:00] Frankfurt#6
+[2026/03/03 19:00] Sydney#2
+[2026/03/03 19:08] Toronto#6
+[2026/03/03 19:17] Sydney#3
+[2026/03/03 19:18] Tokyo#4
+[2026/03/03 19:28] Frankfurt#4
+[2026/03/03 19:35] Paris#2
+[2026/03/03 19:42] Seattle#2
+[2026/03/03 19:46] Paris#5
+[2026/03/03 19:53] Paris#3
+[2026/03/03 19:59] Seattle#1
+[2026/03/03 20:00] Stpetersburg#2
+[2026/03/03 20:02] Losangeles#2
+[2026/03/03 20:04] Singapore#7
+[2026/03/03 20:05] Atlanta#5
+[2026/03/03 20:05] Paris#1
+[2026/03/03 20:09] Miami#4
+[2026/03/03 20:12] Chicago#2
+[2026/03/03 20:16] Losangeles#3
+[2026/03/03 20:18] Frankfurt#3
+[2026/03/03 20:31] Miami#3
+[2026/03/03 20:37] Singapore#3
+[2026/03/03 20:40] Siliconvalley#3
+[2026/03/03 20:41] Dallas#5
+[2026/03/03 20:48] Newyork#3
+[2026/03/03 20:51] Toronto#4
+[2026/03/03 20:51] Singapore#6
+[2026/03/03 20:51] Saopaulo#4
+[2026/03/03 20:51] Saopaulo#2
+[2026/03/03 20:57] Newyork#1
+[2026/03/03 20:57] Mumbai#2
+[2026/03/03 20:57] Frankfurt#2
+[2026/03/03 21:01] Sydney#1
+[2026/03/03 21:15] Mumbai#3
+[2026/03/03 21:15] Saopaulo#1
+[2026/03/03 21:16] Tokyo#3
+[2026/03/03 21:17] Tokyo#1
+[2026/03/03 21:18] Tokyo#2
+[2026/03/03 21:26] Dallas#3
+[2026/03/03 21:26] Stpetersburg#1
+[2026/03/03 21:32] Saopaulo#3
+[2026/03/03 21:32] Atlanta#3
+[2026/03/03 21:34] Toronto#1
+[2026/03/03 21:37] Atlanta#4
+[2026/03/03 21:38] Frankfurt#5
+[2026/03/03 21:42] Toronto#2
+[2026/03/03 21:43] Chicago#4
+[2026/03/03 21:45] Toronto#5
+[2026/03/03 21:55] Siliconvalley#4
+[2026/03/03 22:01] Toronto#3
+[2026/03/03 22:02] Dallas#1
+[2026/03/03 22:04] Singapore#5
+[2026/03/03 22:05] Singapore#1
+[2026/03/03 22:07] Singapore#9
+[2026/03/03 22:11] Siliconvalley#2
+[2026/03/03 22:24] Siliconvalley#1
+[2026/03/03 22:35] Dallas#2
+[2026/03/03 22:48] Frankfurt#7
+[2026/03/03 22:49] Atlanta#1
+[2026/03/03 22:57] Singapore#2
+[2026/03/03 22:57] Stpetersburg#4
+[2026/03/03 22:58] Singapore#8
+[2026/03/03 23:05] Chicago#3
+[2026/03/03 23:05] Atlanta#6
+[2026/03/03 23:06] Mumbai#1
+[2026/03/03 23:08] Chicago#5
+[2026/03/03 23:16] Frankfurt#1
+[2026/03/03 23:22] Paris#6
+[2026/03/03 23:23] Newyork#2
+[2026/03/03 23:49] Losangeles#1
+[2026/03/03 23:55] Dallas#4
+[2026/03/04 00:03] Newyork#4
+[2026/03/04 00:03] Paris#4
+[2026/03/04 00:05] Atlanta#2
+[2026/03/04 00:21] Seattle#3
+[2026/03/04 00:22] Miami#1
+[2026/03/04 00:29] Chicago#1
+[2026/03/04 00:29] Singapore#4
+[2026/03/04 00:31] Stpetersburg#3
+[2026/03/04 00:35] Miami#2
+[2026/03/04 00:38] Sydney#2
+[2026/03/04 00:39] Frankfurt#6
+[2026/03/04 00:46] Toronto#6
+[2026/03/04 00:55] Sydney#3
+[2026/03/04 00:56] Tokyo#4
+[2026/03/04 01:06] Frankfurt#4
+[2026/03/04 01:13] Paris#2
+[2026/03/04 01:20] Seattle#2
+[2026/03/04 01:24] Paris#5
+[2026/03/04 01:31] Paris#3
+[2026/03/04 01:37] Seattle#1
+[2026/03/04 01:38] Stpetersburg#2
+[2026/03/04 01:40] Losangeles#2
+[2026/03/04 01:43] Singapore#7
+[2026/03/04 01:43] Atlanta#5
+[2026/03/04 01:43] Paris#1
+[2026/03/04 01:47] Miami#4
+[2026/03/04 01:50] Chicago#2
+[2026/03/04 01:54] Losangeles#3
+[2026/03/04 01:57] Frankfurt#3
+[2026/03/04 02:10] Miami#3
+[2026/03/04 02:16] Singapore#3
+[2026/03/04 02:19] Siliconvalley#3
+[2026/03/04 02:19] Dallas#5
+[2026/03/04 02:27] Newyork#3
+[2026/03/04 02:29] Toronto#4
+[2026/03/04 02:29] Saopaulo#4
+[2026/03/04 02:30] Saopaulo#2
+[2026/03/04 02:30] Singapore#6
+[2026/03/04 02:35] Mumbai#2
+[2026/03/04 02:35] Newyork#1
+[2026/03/04 02:35] Frankfurt#2
+[2026/03/04 02:39] Sydney#1
+[2026/03/04 02:53] Mumbai#3
+[2026/03/04 02:54] Saopaulo#1
+[2026/03/04 02:55] Tokyo#3
+[2026/03/04 02:55] Tokyo#1
+[2026/03/04 02:56] Tokyo#2
+[2026/03/04 03:04] Stpetersburg#1
+[2026/03/04 03:04] Dallas#3
+[2026/03/04 03:11] Saopaulo#3
+[2026/03/04 03:11] Atlanta#3
+[2026/03/04 03:12] Toronto#1
+[2026/03/04 03:15] Atlanta#4
+[2026/03/04 03:16] Frankfurt#5
+[2026/03/04 03:20] Toronto#2
+[2026/03/04 03:22] Chicago#4
+[2026/03/04 03:23] Toronto#5
+[2026/03/04 03:33] Siliconvalley#4
+[2026/03/04 03:39] Toronto#3
+[2026/03/04 03:41] Dallas#1
+[2026/03/04 03:42] Singapore#5
+[2026/03/04 03:44] Singapore#1
+[2026/03/04 03:46] Singapore#9
+[2026/03/04 03:49] Siliconvalley#2
+[2026/03/04 04:03] Siliconvalley#1
+[2026/03/04 04:14] Dallas#2
+[2026/03/04 04:27] Frankfurt#7
+[2026/03/04 04:27] Atlanta#1
+[2026/03/04 04:35] Singapore#2
+[2026/03/04 04:36] Stpetersburg#4
+[2026/03/04 04:36] Singapore#8
+[2026/03/04 04:43] Chicago#3
+[2026/03/04 04:44] Atlanta#6
+[2026/03/04 04:45] Mumbai#1
+[2026/03/04 04:47] Chicago#5
+[2026/03/04 04:55] Frankfurt#1
+[2026/03/04 05:00] Paris#6
+[2026/03/04 05:01] Newyork#2
+[2026/03/04 05:28] Losangeles#1
+[2026/03/04 05:34] Dallas#4
+[2026/03/04 05:42] Newyork#4
+[2026/03/04 05:42] Paris#4
+[2026/03/04 05:43] Atlanta#2
+[2026/03/04 06:00] Seattle#3
+[2026/03/04 06:00] Miami#1
+[2026/03/04 06:07] Chicago#1
+[2026/03/04 06:07] Singapore#4
+[2026/03/04 06:10] Stpetersburg#3
+[2026/03/04 06:13] Miami#2
+[2026/03/04 06:17] Sydney#2
+[2026/03/04 06:17] Frankfurt#6
+[2026/03/04 06:25] Toronto#6
+[2026/03/04 06:33] Sydney#3
+[2026/03/04 06:34] Tokyo#4
+[2026/03/04 06:45] Frankfurt#4
+[2026/03/04 06:52] Paris#2
+[2026/03/04 06:58] Seattle#2
+[2026/03/04 07:03] Paris#5
+[2026/03/04 07:09] Paris#3
+[2026/03/04 07:15] Seattle#1
+[2026/03/04 07:17] Stpetersburg#2
+[2026/03/04 07:19] Losangeles#2
+[2026/03/04 07:21] Singapore#7
+[2026/03/04 07:21] Paris#1
+[2026/03/04 07:21] Atlanta#5
+[2026/03/04 07:26] Miami#4
+[2026/03/04 07:29] Chicago#2
+[2026/03/04 07:33] Losangeles#3
+[2026/03/04 07:35] Frankfurt#3
+[2026/03/04 07:48] Miami#3
+[2026/03/04 07:54] Singapore#3
+[2026/03/04 07:57] Siliconvalley#3
+[2026/03/04 07:57] Dallas#5
+[2026/03/04 08:05] Newyork#3
+[2026/03/04 08:07] Toronto#4
+[2026/03/04 08:08] Saopaulo#4
+[2026/03/04 08:08] Singapore#6
+[2026/03/04 08:08] Saopaulo#2
+[2026/03/04 08:13] Mumbai#2
+[2026/03/04 08:13] Newyork#1
+[2026/03/04 08:13] Frankfurt#2
+[2026/03/04 08:18] Sydney#1
+[2026/03/04 08:31] Mumbai#3
+[2026/03/04 08:32] Saopaulo#1
+[2026/03/04 08:33] Tokyo#3
+[2026/03/04 08:33] Tokyo#1
+[2026/03/04 08:35] Tokyo#2
+[2026/03/04 08:42] Stpetersburg#1
+[2026/03/04 08:42] Dallas#3
+[2026/03/04 08:49] Atlanta#3
+[2026/03/04 08:49] Saopaulo#3
+[2026/03/04 08:50] Toronto#1
+[2026/03/04 08:53] Atlanta#4
+[2026/03/04 08:54] Frankfurt#5
+[2026/03/04 08:59] Toronto#2
+[2026/03/04 09:00] Chicago#4
+[2026/03/04 09:02] Toronto#5
+[2026/03/04 09:12] Siliconvalley#4
+[2026/03/04 09:18] Toronto#3
+[2026/03/04 09:19] Dallas#1
+[2026/03/04 09:20] Singapore#5
+[2026/03/04 09:22] Singapore#1
+[2026/03/04 09:24] Singapore#9
+[2026/03/04 09:27] Siliconvalley#2
+[2026/03/04 09:41] Siliconvalley#1
+[2026/03/04 09:52] Dallas#2
+[2026/03/04 10:05] Frankfurt#7
+[2026/03/04 10:06] Atlanta#1
+[2026/03/04 10:14] Singapore#2
+[2026/03/04 10:15] Singapore#8
+[2026/03/04 10:15] Stpetersburg#4
+[2026/03/04 10:21] Chicago#3
+[2026/03/04 10:22] Atlanta#6
+[2026/03/04 10:23] Mumbai#1
+[2026/03/04 10:25] Chicago#5
+[2026/03/04 10:33] Frankfurt#1
+[2026/03/04 10:39] Paris#6
+[2026/03/04 10:40] Newyork#2
+[2026/03/04 11:06] Losangeles#1
+[2026/03/04 11:12] Dallas#4
+[2026/03/04 11:20] Newyork#4
+[2026/03/04 11:20] Paris#4
+[2026/03/04 11:22] Atlanta#2
+[2026/03/04 11:38] Miami#1
+[2026/03/04 11:38] Seattle#3
+[2026/03/04 11:46] Singapore#4
+[2026/03/04 11:46] Chicago#1
+[2026/03/04 11:49] Stpetersburg#3
+[2026/03/04 11:51] Miami#2
+[2026/03/04 11:55] Frankfurt#6
+[2026/03/04 11:55] Sydney#2
+[2026/03/04 12:03] Toronto#6
+[2026/03/04 12:12] Sydney#3
+[2026/03/04 12:12] Tokyo#4
+[2026/03/04 12:23] Frankfurt#4
+[2026/03/04 12:30] Paris#2
+[2026/03/04 12:36] Seattle#2
+[2026/03/04 12:41] Paris#5
+[2026/03/04 12:47] Paris#3
+[2026/03/04 12:53] Seattle#1
+[2026/03/04 12:55] Stpetersburg#2
+[2026/03/04 12:57] Losangeles#2
+[2026/03/04 12:59] Singapore#7
+[2026/03/04 13:00] Paris#1
+[2026/03/04 13:00] Atlanta#5
+[2026/03/04 13:04] Miami#4
+[2026/03/04 13:07] Chicago#2
+[2026/03/04 13:11] Losangeles#3
+[2026/03/04 13:13] Frankfurt#3
+[2026/03/04 13:26] Miami#3
+[2026/03/04 13:32] Singapore#3
+[2026/03/04 13:35] Dallas#5
+[2026/03/04 13:35] Siliconvalley#3
+[2026/03/04 13:43] Newyork#3
+[2026/03/04 13:46] Toronto#4
+[2026/03/04 13:46] Saopaulo#4
+[2026/03/04 13:46] Singapore#6
+[2026/03/04 13:46] Saopaulo#2
+[2026/03/04 13:51] Mumbai#2
+[2026/03/04 13:51] Frankfurt#2
+[2026/03/04 13:52] Newyork#1
+[2026/03/04 13:56] Sydney#1
+[2026/03/04 14:10] Mumbai#3
+[2026/03/04 14:11] Saopaulo#1
+[2026/03/04 14:11] Tokyo#3
+[2026/03/04 14:11] Tokyo#1
+[2026/03/04 14:13] Tokyo#2
+[2026/03/04 14:21] Stpetersburg#1
+[2026/03/04 14:21] Dallas#3
+[2026/03/04 14:27] Saopaulo#3
+[2026/03/04 14:27] Atlanta#3
+[2026/03/04 14:29] Toronto#1
+[2026/03/04 14:32] Atlanta#4
+[2026/03/04 14:33] Frankfurt#5
+[2026/03/04 14:37] Toronto#2
+[2026/03/04 14:39] Chicago#4
+[2026/03/04 14:40] Toronto#5
+[2026/03/04 14:50] Siliconvalley#4
+[2026/03/04 14:56] Toronto#3
+[2026/03/04 14:57] Dallas#1
+[2026/03/04 14:59] Singapore#5
+[2026/03/04 15:00] Singapore#1
+[2026/03/04 15:02] Singapore#9
+[2026/03/04 15:05] Siliconvalley#2
+[2026/03/04 15:19] Siliconvalley#1
+[2026/03/04 15:30] Dallas#2
+[2026/03/04 15:43] Frankfurt#7
+[2026/03/04 15:44] Atlanta#1
+[2026/03/04 15:52] Singapore#2
+[2026/03/04 15:53] Singapore#8
+[2026/03/04 15:53] Stpetersburg#4
+[2026/03/04 16:00] Chicago#3
+[2026/03/04 16:00] Atlanta#6
+[2026/03/04 16:01] Mumbai#1
+[2026/03/04 16:03] Chicago#5
+[2026/03/04 16:11] Frankfurt#1
+[2026/03/04 16:17] Paris#6
+[2026/03/04 16:18] Newyork#2
+[2026/03/04 16:44] Losangeles#1
+[2026/03/04 16:50] Dallas#4
+[2026/03/04 16:58] Newyork#4
+[2026/03/04 16:58] Paris#4
+[2026/03/04 17:00] Atlanta#2
+[2026/03/04 17:16] Miami#1
+[2026/03/04 17:17] Seattle#3
+[2026/03/04 17:24] Singapore#4
+[2026/03/04 17:24] Chicago#1
+[2026/03/04 17:27] Stpetersburg#3
+[2026/03/04 17:29] Miami#2
+[2026/03/04 17:33] Frankfurt#6
+[2026/03/04 17:33] Sydney#2
+[2026/03/04 17:42] Toronto#6
+[2026/03/04 17:50] Sydney#3
+[2026/03/04 17:51] Tokyo#4
+[2026/03/04 18:01] Frankfurt#4
+[2026/03/04 18:08] Paris#2
+[2026/03/04 18:15] Seattle#2
+[2026/03/04 18:19] Paris#5
+[2026/03/04 18:25] Paris#3
+[2026/03/04 18:31] Seattle#1
+[2026/03/04 18:34] Stpetersburg#2
+[2026/03/04 18:36] Losangeles#2
+[2026/03/04 18:37] Singapore#7
+[2026/03/04 18:38] Paris#1
+[2026/03/04 18:38] Atlanta#5
+[2026/03/04 18:42] Miami#4
+[2026/03/04 18:45] Chicago#2
+[2026/03/04 18:50] Losangeles#3
+[2026/03/04 18:52] Frankfurt#3
+[2026/03/04 19:04] Miami#3
+[2026/03/04 19:10] Singapore#3
+[2026/03/04 19:13] Dallas#5
+[2026/03/04 19:14] Siliconvalley#3
+[2026/03/04 19:21] Newyork#3
+[2026/03/04 19:24] Toronto#4
+[2026/03/04 19:24] Saopaulo#4
+[2026/03/04 19:25] Singapore#6
+[2026/03/04 19:25] Saopaulo#2
+[2026/03/04 19:29] Mumbai#2
+[2026/03/04 19:30] Frankfurt#2
+[2026/03/04 19:30] Newyork#1
+[2026/03/04 19:34] Sydney#1
+[2026/03/04 19:48] Mumbai#3
+[2026/03/04 19:49] Saopaulo#1
+[2026/03/04 19:49] Tokyo#3
+[2026/03/04 19:50] Tokyo#1
+[2026/03/04 19:51] Tokyo#2
+[2026/03/04 19:59] Stpetersburg#1
+[2026/03/04 19:59] Dallas#3
+[2026/03/04 20:05] Saopaulo#3
+[2026/03/04 20:06] Atlanta#3
+[2026/03/04 20:07] Toronto#1
+[2026/03/04 20:10] Atlanta#4
+[2026/03/04 20:12] Frankfurt#5
+[2026/03/04 20:15] Toronto#2
+[2026/03/04 20:17] Chicago#4
+[2026/03/04 20:18] Toronto#5
+[2026/03/04 20:28] Siliconvalley#4
+[2026/03/04 20:34] Toronto#3
+[2026/03/04 20:36] Dallas#1
+[2026/03/04 20:37] Singapore#5
+[2026/03/04 20:38] Singapore#1
+[2026/03/04 20:41] Singapore#9
+[2026/03/04 20:43] Siliconvalley#2
+[2026/03/04 20:57] Siliconvalley#1
+[2026/03/04 21:09] Dallas#2
+[2026/03/04 21:22] Frankfurt#7
+[2026/03/04 21:22] Atlanta#1
+[2026/03/04 21:30] Singapore#2
+[2026/03/04 21:32] Singapore#8
+[2026/03/04 21:33] Stpetersburg#4
+[2026/03/04 21:38] Chicago#3
+[2026/03/04 21:38] Atlanta#6
+[2026/03/04 21:40] Mumbai#1
+[2026/03/04 21:41] Chicago#5
+[2026/03/04 21:49] Frankfurt#1
+[2026/03/04 21:55] Paris#6
+[2026/03/04 21:56] Newyork#2
+[2026/03/04 22:22] Losangeles#1
+[2026/03/04 22:28] Dallas#4
+[2026/03/04 22:36] Newyork#4
+[2026/03/04 22:37] Paris#4
+[2026/03/04 22:38] Atlanta#2
+[2026/03/04 22:54] Miami#1
+[2026/03/04 22:55] Seattle#3
+[2026/03/04 23:02] Chicago#1
+[2026/03/04 23:02] Singapore#4
+[2026/03/04 23:06] Stpetersburg#3
+[2026/03/04 23:07] Miami#2
+[2026/03/04 23:12] Frankfurt#6
+[2026/03/04 23:12] Sydney#2
+[2026/03/04 23:20] Toronto#6
+[2026/03/04 23:29] Sydney#3
+[2026/03/04 23:29] Tokyo#4
+[2026/03/04 23:40] Frankfurt#4
+[2026/03/04 23:46] Paris#2
+[2026/03/04 23:53] Seattle#2
+[2026/03/04 23:57] Paris#5
+[2026/03/05 00:03] Paris#3
+[2026/03/05 00:09] Seattle#1
+[2026/03/05 00:12] Stpetersburg#2
+[2026/03/05 00:14] Losangeles#2
+[2026/03/05 00:16] Singapore#7
+[2026/03/05 00:16] Paris#1
+[2026/03/05 00:17] Atlanta#5
+[2026/03/05 00:20] Miami#4
+[2026/03/05 00:24] Chicago#2
+[2026/03/05 00:28] Losangeles#3
+[2026/03/05 00:30] Frankfurt#3
+[2026/03/05 00:43] Miami#3
+[2026/03/05 00:49] Singapore#3
+[2026/03/05 00:51] Dallas#5
+[2026/03/05 00:52] Siliconvalley#3
+[2026/03/05 01:00] Newyork#3
+[2026/03/05 01:02] Toronto#4
+[2026/03/05 01:02] Saopaulo#4
+[2026/03/05 01:03] Singapore#6
+[2026/03/05 01:03] Saopaulo#2
+[2026/03/05 01:07] Mumbai#2
+[2026/03/05 01:08] Frankfurt#2
+[2026/03/05 01:08] Newyork#1
+[2026/03/05 01:12] Sydney#1
+[2026/03/05 01:26] Mumbai#3
+[2026/03/05 01:27] Saopaulo#1
+[2026/03/05 01:27] Tokyo#3
+[2026/03/05 01:28] Tokyo#1
+[2026/03/05 01:29] Tokyo#2
+[2026/03/05 01:37] Dallas#3
+[2026/03/05 01:37] Stpetersburg#1
+[2026/03/05 01:43] Saopaulo#3
+[2026/03/05 01:44] Atlanta#3
+[2026/03/05 01:45] Toronto#1
+[2026/03/05 01:49] Atlanta#4
+[2026/03/05 01:50] Frankfurt#5
+[2026/03/05 01:53] Toronto#2
+[2026/03/05 01:55] Chicago#4
+[2026/03/05 01:56] Toronto#5
+[2026/03/05 02:06] Siliconvalley#4
+[2026/03/05 02:12] Toronto#3
+[2026/03/05 02:14] Dallas#1
+[2026/03/05 02:15] Singapore#5
+[2026/03/05 02:17] Singapore#1
+[2026/03/05 02:19] Singapore#9
+[2026/03/05 02:21] Siliconvalley#2
+[2026/03/05 02:35] Siliconvalley#1
+[2026/03/05 02:48] Dallas#2
+[2026/03/05 03:00] Frankfurt#7
+[2026/03/05 03:01] Atlanta#1
+[2026/03/05 03:09] Singapore#2
+[2026/03/05 03:10] Singapore#8
+[2026/03/05 03:12] Stpetersburg#4
+[2026/03/05 03:16] Chicago#3
+[2026/03/05 03:17] Atlanta#6
+[2026/03/05 03:18] Mumbai#1
+[2026/03/05 03:20] Chicago#5
+[2026/03/05 03:27] Frankfurt#1
+[2026/03/05 03:34] Paris#6
+[2026/03/05 03:34] Newyork#2
+[2026/03/05 04:01] Losangeles#1
+[2026/03/05 04:07] Dallas#4
+[2026/03/05 04:14] Newyork#4
+[2026/03/05 04:15] Paris#4
+[2026/03/05 04:16] Atlanta#2
+[2026/03/05 04:33] Miami#1
+[2026/03/05 04:34] Seattle#3
+[2026/03/05 04:40] Singapore#4
+[2026/03/05 04:41] Chicago#1
+[2026/03/05 04:44] Stpetersburg#3
+[2026/03/05 04:46] Miami#2
+[2026/03/05 04:50] Frankfurt#6
+[2026/03/05 04:50] Sydney#2
+[2026/03/05 04:59] Toronto#6
+[2026/03/05 05:07] Sydney#3
+[2026/03/05 05:07] Tokyo#4
+[2026/03/05 05:19] Frankfurt#4
+[2026/03/05 05:24] Paris#2
+[2026/03/05 05:31] Seattle#2
+[2026/03/05 05:35] Paris#5
+[2026/03/05 05:42] Paris#3
+[2026/03/05 05:48] Seattle#1
+[2026/03/05 05:51] Stpetersburg#2
+[2026/03/05 05:52] Losangeles#2
+[2026/03/05 05:54] Singapore#7
+[2026/03/05 05:54] Paris#1
+[2026/03/05 05:55] Atlanta#5
+[2026/03/05 05:59] Miami#4
+[2026/03/05 06:02] Chicago#2
+[2026/03/05 06:07] Losangeles#3
+[2026/03/05 06:08] Frankfurt#3
+[2026/03/05 06:21] Miami#3
+[2026/03/05 06:27] Singapore#3
+[2026/03/05 06:30] Dallas#5
+[2026/03/05 06:30] Siliconvalley#3
+[2026/03/05 06:38] Newyork#3
+[2026/03/05 06:40] Saopaulo#4
+[2026/03/05 06:40] Toronto#4
+[2026/03/05 06:41] Singapore#6
+[2026/03/05 06:41] Saopaulo#2
+[2026/03/05 06:45] Mumbai#2
+[2026/03/05 06:46] Frankfurt#2
+[2026/03/05 06:47] Newyork#1
+[2026/03/05 06:51] Sydney#1
+[2026/03/05 07:04] Mumbai#3
+[2026/03/05 07:05] Tokyo#3
+[2026/03/05 07:05] Saopaulo#1
+[2026/03/05 07:06] Tokyo#1
+[2026/03/05 07:07] Tokyo#2
+[2026/03/05 07:15] Dallas#3
+[2026/03/05 07:16] Stpetersburg#1
+[2026/03/05 07:22] Saopaulo#3
+[2026/03/05 07:22] Atlanta#3
+[2026/03/05 07:23] Toronto#1
+[2026/03/05 07:27] Atlanta#4
+[2026/03/05 07:28] Frankfurt#5
+[2026/03/05 07:31] Toronto#2
+[2026/03/05 07:34] Chicago#4
+[2026/03/05 07:34] Toronto#5
+[2026/03/05 07:44] Siliconvalley#4
+[2026/03/05 07:51] Toronto#3
+[2026/03/05 07:53] Dallas#1
+[2026/03/05 07:54] Singapore#5
+[2026/03/05 07:55] Singapore#1
+[2026/03/05 07:57] Singapore#9
+[2026/03/05 08:00] Siliconvalley#2
+[2026/03/05 08:13] Siliconvalley#1
+[2026/03/05 08:27] Dallas#2
+[2026/03/05 08:38] Frankfurt#7
+[2026/03/05 08:39] Atlanta#1
+[2026/03/05 08:47] Singapore#2
+[2026/03/05 08:48] Singapore#8
+[2026/03/05 08:50] Stpetersburg#4
+[2026/03/05 08:55] Chicago#3
+[2026/03/05 08:55] Atlanta#6
+[2026/03/05 08:56] Mumbai#1
+[2026/03/05 08:58] Chicago#5
+[2026/03/05 09:05] Frankfurt#1
+[2026/03/05 09:12] Paris#6
+[2026/03/05 09:13] Newyork#2
+[2026/03/05 09:39] Losangeles#1
+[2026/03/05 09:46] Dallas#4
+[2026/03/05 09:53] Newyork#4
+[2026/03/05 09:53] Paris#4
+[2026/03/05 09:55] Atlanta#2
+[2026/03/05 10:12] Miami#1
+[2026/03/05 10:12] Seattle#3
+[2026/03/05 10:18] Singapore#4
+[2026/03/05 10:19] Chicago#1
+[2026/03/05 10:23] Stpetersburg#3
+[2026/03/05 10:24] Miami#2
+[2026/03/05 10:28] Frankfurt#6
+[2026/03/05 10:29] Sydney#2
+[2026/03/05 10:37] Toronto#6
+[2026/03/05 10:45] Tokyo#4
+[2026/03/05 10:46] Sydney#3
+[2026/03/05 10:57] Frankfurt#4
+[2026/03/05 11:02] Paris#2
+[2026/03/05 11:09] Seattle#2
+[2026/03/05 11:13] Paris#5
+[2026/03/05 11:20] Paris#3
+[2026/03/05 11:26] Seattle#1
+[2026/03/05 11:29] Stpetersburg#2
+[2026/03/05 11:31] Losangeles#2
+[2026/03/05 11:32] Paris#1
+[2026/03/05 11:33] Singapore#7
+[2026/03/05 11:34] Atlanta#5
+[2026/03/05 11:37] Miami#4
+[2026/03/05 11:40] Chicago#2
+[2026/03/05 11:46] Losangeles#3
+[2026/03/05 11:46] Frankfurt#3
+[2026/03/05 11:59] Miami#3
+[2026/03/05 12:05] Singapore#3
+[2026/03/05 12:08] Dallas#5
+[2026/03/05 12:08] Siliconvalley#3
+[2026/03/05 12:16] Newyork#3
+[2026/03/05 12:19] Saopaulo#4
+[2026/03/05 12:19] Toronto#4
+[2026/03/05 12:19] Singapore#6
+[2026/03/05 12:19] Saopaulo#2
+[2026/03/05 12:23] Mumbai#2
+[2026/03/05 12:25] Frankfurt#2
+[2026/03/05 12:25] Newyork#1
+[2026/03/05 12:29] Sydney#1
+[2026/03/05 12:42] Mumbai#3
+[2026/03/05 12:44] Saopaulo#1
+[2026/03/05 12:44] Tokyo#1
+[2026/03/05 12:44] Tokyo#3
+[2026/03/05 12:46] Tokyo#2
+[2026/03/05 12:54] Dallas#3
+[2026/03/05 12:54] Stpetersburg#1
+[2026/03/05 13:00] Saopaulo#3
+[2026/03/05 13:01] Atlanta#3
+[2026/03/05 13:01] Toronto#1
+[2026/03/05 13:05] Atlanta#4
+[2026/03/05 13:06] Frankfurt#5
+[2026/03/05 13:09] Toronto#2
+[2026/03/05 13:12] Chicago#4
+[2026/03/05 13:12] Toronto#5
+[2026/03/05 13:22] Siliconvalley#4
+[2026/03/05 13:29] Toronto#3
+[2026/03/05 13:31] Dallas#1
+[2026/03/05 13:32] Singapore#5
+[2026/03/05 13:33] Singapore#1
+[2026/03/05 13:35] Singapore#9
+[2026/03/05 13:38] Siliconvalley#2
+[2026/03/05 13:52] Siliconvalley#1
+[2026/03/05 14:04] Dallas#2
+[2026/03/05 14:16] Frankfurt#7
+[2026/03/05 14:18] Atlanta#1
+[2026/03/05 14:25] Singapore#2
+[2026/03/05 14:26] Singapore#8
+[2026/03/05 14:29] Stpetersburg#4
+[2026/03/05 14:33] Chicago#3
+[2026/03/05 14:33] Atlanta#6
+[2026/03/05 14:35] Mumbai#1
+[2026/03/05 14:37] Chicago#5
+[2026/03/05 14:43] Frankfurt#1
+[2026/03/05 14:50] Paris#6
+[2026/03/05 14:51] Newyork#2
+[2026/03/05 15:17] Losangeles#1
+[2026/03/05 15:24] Dallas#4
+[2026/03/05 15:31] Newyork#4
+[2026/03/05 15:31] Paris#4
+[2026/03/05 15:33] Atlanta#2
+[2026/03/05 15:50] Miami#1
+[2026/03/05 15:51] Seattle#3
+[2026/03/05 15:57] Singapore#4
+[2026/03/05 15:57] Chicago#1
+[2026/03/05 16:02] Stpetersburg#3
+[2026/03/05 16:02] Miami#2
+[2026/03/05 16:06] Frankfurt#6
+[2026/03/05 16:07] Sydney#2
+[2026/03/05 16:15] Toronto#6
+[2026/03/05 16:24] Tokyo#4
+[2026/03/05 16:25] Sydney#3
+[2026/03/05 16:36] Frankfurt#4
+[2026/03/05 16:40] Paris#2
+[2026/03/05 16:48] Seattle#2
+[2026/03/05 16:52] Paris#5
+[2026/03/05 16:58] Paris#3
+[2026/03/05 17:04] Seattle#1
+[2026/03/05 17:08] Stpetersburg#2
+[2026/03/05 17:09] Losangeles#2
+[2026/03/05 17:11] Paris#1
+[2026/03/05 17:11] Singapore#7
+[2026/03/05 17:12] Atlanta#5
+[2026/03/05 17:15] Miami#4
+[2026/03/05 17:19] Chicago#2
+[2026/03/05 17:24] Losangeles#3
+[2026/03/05 17:25] Frankfurt#3
+[2026/03/05 17:37] Miami#3
+[2026/03/05 17:44] Singapore#3
+[2026/03/05 17:46] Dallas#5
+[2026/03/05 17:46] Siliconvalley#3
+[2026/03/05 17:55] Newyork#3
+[2026/03/05 17:57] Saopaulo#4
+[2026/03/05 17:57] Toronto#4
+[2026/03/05 17:57] Singapore#6
+[2026/03/05 17:58] Saopaulo#2
+[2026/03/05 18:01] Mumbai#2
+[2026/03/05 18:03] Frankfurt#2
+[2026/03/05 18:03] Newyork#1
+[2026/03/05 18:07] Sydney#1
+[2026/03/05 18:21] Mumbai#3
+[2026/03/05 18:22] Tokyo#1
+[2026/03/05 18:22] Saopaulo#1
+[2026/03/05 18:23] Tokyo#3
+[2026/03/05 18:24] Tokyo#2
+[2026/03/05 18:32] Dallas#3
+[2026/03/05 18:32] Stpetersburg#1
+[2026/03/05 18:38] Saopaulo#3
+[2026/03/05 18:39] Atlanta#3
+[2026/03/05 18:39] Toronto#1
+[2026/03/05 18:43] Atlanta#4
+[2026/03/05 18:44] Frankfurt#5
+[2026/03/05 18:47] Toronto#2
+[2026/03/05 18:50] Toronto#5
+[2026/03/05 18:50] Chicago#4
+[2026/03/05 19:00] Siliconvalley#4
+[2026/03/05 19:07] Toronto#3
+[2026/03/05 19:10] Dallas#1
+[2026/03/05 19:10] Singapore#5
+[2026/03/05 19:11] Singapore#1
+[2026/03/05 19:14] Singapore#9
+[2026/03/05 19:16] Siliconvalley#2
+[2026/03/05 19:29] Siliconvalley#1
+[2026/03/05 19:43] Dallas#2
+[2026/03/05 19:54] Frankfurt#7
+[2026/03/05 19:56] Atlanta#1
+[2026/03/05 20:03] Singapore#2
+[2026/03/05 20:05] Singapore#8
+[2026/03/05 20:07] Stpetersburg#4
+[2026/03/05 20:11] Chicago#3
+[2026/03/05 20:12] Atlanta#6
+[2026/03/05 20:13] Mumbai#1
+[2026/03/05 20:15] Chicago#5
+[2026/03/05 20:21] Frankfurt#1
+[2026/03/05 20:28] Paris#6
+[2026/03/05 20:29] Newyork#2
+[2026/03/05 20:55] Losangeles#1
+[2026/03/05 21:02] Dallas#4
+[2026/03/05 21:09] Newyork#4
+[2026/03/05 21:10] Paris#4
+[2026/03/05 21:12] Atlanta#2
+[2026/03/05 21:28] Miami#1
+[2026/03/05 21:29] Seattle#3
+[2026/03/05 21:35] Chicago#1
+[2026/03/05 21:35] Singapore#4
+[2026/03/05 21:40] Miami#2
+[2026/03/05 21:41] Stpetersburg#3
+[2026/03/05 21:44] Frankfurt#6
+[2026/03/05 21:46] Sydney#2
+[2026/03/05 21:53] Toronto#6
+[2026/03/05 22:02] Tokyo#4
+[2026/03/05 22:04] Sydney#3
+[2026/03/05 22:14] Frankfurt#4
+[2026/03/05 22:19] Paris#2
+[2026/03/05 22:26] Seattle#2
+[2026/03/05 22:30] Paris#5
+[2026/03/05 22:36] Paris#3
+[2026/03/05 22:42] Seattle#1
+[2026/03/05 22:46] Stpetersburg#2
+[2026/03/05 22:47] Losangeles#2
+[2026/03/05 22:49] Paris#1
+[2026/03/05 22:49] Singapore#7
+[2026/03/05 22:50] Atlanta#5
+[2026/03/05 22:53] Miami#4
+[2026/03/05 22:57] Chicago#2
+[2026/03/05 23:02] Losangeles#3
+[2026/03/05 23:04] Frankfurt#3
+[2026/03/05 23:15] Miami#3
+[2026/03/05 23:22] Singapore#3
+[2026/03/05 23:24] Dallas#5
+[2026/03/05 23:24] Siliconvalley#3
+[2026/03/05 23:33] Newyork#3
+[2026/03/05 23:35] Saopaulo#4
+[2026/03/05 23:35] Toronto#4
+[2026/03/05 23:35] Singapore#6
+[2026/03/05 23:36] Saopaulo#2
+[2026/03/05 23:40] Mumbai#2
+[2026/03/05 23:41] Frankfurt#2
+[2026/03/05 23:41] Newyork#1
+[2026/03/05 23:46] Sydney#1
+[2026/03/05 23:59] Mumbai#3
+[2026/03/06 00:00] Saopaulo#1
+[2026/03/06 00:00] Tokyo#1
+[2026/03/06 00:01] Tokyo#3
+[2026/03/06 00:02] Tokyo#2
+[2026/03/06 00:10] Dallas#3
+[2026/03/06 00:10] Stpetersburg#1
+[2026/03/06 00:17] Saopaulo#3
+[2026/03/06 00:17] Atlanta#3
+[2026/03/06 00:18] Toronto#1
+[2026/03/06 00:22] Atlanta#4
+[2026/03/06 00:23] Frankfurt#5
+[2026/03/06 00:26] Toronto#2
+[2026/03/06 00:28] Toronto#5
+[2026/03/06 00:29] Chicago#4
+[2026/03/06 00:39] Siliconvalley#4
+[2026/03/06 00:45] Toronto#3
+[2026/03/06 00:48] Dallas#1
+[2026/03/06 00:48] Singapore#5
+[2026/03/06 00:50] Singapore#1
+[2026/03/06 00:52] Singapore#9
+[2026/03/06 00:54] Siliconvalley#2
+[2026/03/06 01:08] Siliconvalley#1
+[2026/03/06 01:21] Dallas#2
+[2026/03/06 01:33] Frankfurt#7
+[2026/03/06 01:35] Atlanta#1
+[2026/03/06 01:42] Singapore#2
+[2026/03/06 01:43] Singapore#8
+[2026/03/06 01:46] Stpetersburg#4
+[2026/03/06 01:50] Chicago#3
+[2026/03/06 01:50] Atlanta#6
+[2026/03/06 01:52] Mumbai#1
+[2026/03/06 01:53] Chicago#5
+[2026/03/06 01:59] Frankfurt#1
+[2026/03/06 02:06] Paris#6
+[2026/03/06 02:08] Newyork#2
+[2026/03/06 02:33] Losangeles#1
+[2026/03/06 02:41] Dallas#4
+[2026/03/06 02:47] Newyork#4
+[2026/03/06 02:48] Paris#4
+[2026/03/06 02:50] Atlanta#2
+[2026/03/06 03:07] Miami#1
+[2026/03/06 03:07] Seattle#3
+[2026/03/06 03:13] Chicago#1
+[2026/03/06 03:13] Singapore#4
+[2026/03/06 03:18] Miami#2
+[2026/03/06 03:20] Stpetersburg#3
+[2026/03/06 03:23] Frankfurt#6
+[2026/03/06 03:24] Sydney#2
+[2026/03/06 03:32] Toronto#6
+[2026/03/06 03:40] Tokyo#4
+[2026/03/06 03:42] Sydney#3
+[2026/03/06 03:52] Frankfurt#4
+[2026/03/06 03:57] Paris#2
+[2026/03/06 04:05] Seattle#2
+[2026/03/06 04:08] Paris#5
+[2026/03/06 04:15] Paris#3
+[2026/03/06 04:20] Seattle#1
+[2026/03/06 04:25] Stpetersburg#2
+[2026/03/06 04:25] Losangeles#2
+[2026/03/06 04:27] Paris#1
+[2026/03/06 04:27] Singapore#7
+[2026/03/06 04:29] Atlanta#5
+[2026/03/06 04:31] Miami#4
+[2026/03/06 04:36] Chicago#2
+[2026/03/06 04:41] Losangeles#3
+[2026/03/06 04:42] Frankfurt#3
+[2026/03/06 04:54] Miami#3
+[2026/03/06 05:00] Singapore#3
+[2026/03/06 05:02] Dallas#5
+[2026/03/06 05:03] Siliconvalley#3
+[2026/03/06 05:11] Newyork#3
+[2026/03/06 05:13] Toronto#4
+[2026/03/06 05:13] Saopaulo#4
+[2026/03/06 05:13] Singapore#6
+[2026/03/06 05:14] Saopaulo#2
+[2026/03/06 05:18] Mumbai#2
+[2026/03/06 05:19] Newyork#1
+[2026/03/06 05:19] Frankfurt#2
+[2026/03/06 05:24] Sydney#1
+[2026/03/06 05:37] Mumbai#3
+[2026/03/06 05:38] Saopaulo#1
+[2026/03/06 05:38] Tokyo#1
+[2026/03/06 05:39] Tokyo#3
+[2026/03/06 05:40] Tokyo#2
+[2026/03/06 05:48] Dallas#3
+[2026/03/06 05:49] Stpetersburg#1
+[2026/03/06 05:55] Saopaulo#3
+[2026/03/06 05:56] Toronto#1
+[2026/03/06 05:56] Atlanta#3
+[2026/03/06 06:01] Atlanta#4
+[2026/03/06 06:02] Frankfurt#5
+[2026/03/06 06:04] Toronto#2
+[2026/03/06 06:07] Toronto#5
+[2026/03/06 06:07] Chicago#4
+[2026/03/06 06:17] Siliconvalley#4
+[2026/03/06 06:24] Toronto#3
+[2026/03/06 06:26] Singapore#5
+[2026/03/06 06:27] Dallas#1
+[2026/03/06 06:28] Singapore#1
+[2026/03/06 06:30] Singapore#9
+[2026/03/06 06:32] Siliconvalley#2
+[2026/03/06 06:46] Siliconvalley#1
+[2026/03/06 07:00] Dallas#2
+[2026/03/06 07:11] Frankfurt#7
+[2026/03/06 07:14] Atlanta#1
+[2026/03/06 07:20] Singapore#2
+[2026/03/06 07:21] Singapore#8
+[2026/03/06 07:25] Stpetersburg#4
+[2026/03/06 07:28] Chicago#3
+[2026/03/06 07:28] Atlanta#6
+[2026/03/06 07:30] Mumbai#1
+[2026/03/06 07:31] Chicago#5
+[2026/03/06 07:37] Frankfurt#1
+[2026/03/06 07:45] Paris#6
+[2026/03/06 07:46] Newyork#2
+[2026/03/06 08:12] Losangeles#1
+[2026/03/06 08:19] Dallas#4
+[2026/03/06 08:26] Newyork#4
+[2026/03/06 08:26] Paris#4
+[2026/03/06 08:29] Atlanta#2
+[2026/03/06 08:45] Miami#1
+[2026/03/06 08:45] Seattle#3
+[2026/03/06 08:51] Chicago#1
+[2026/03/06 08:52] Singapore#4
+[2026/03/06 08:57] Miami#2
+[2026/03/06 08:58] Stpetersburg#3
+[2026/03/06 09:01] Frankfurt#6
+[2026/03/06 09:03] Sydney#2
+[2026/03/06 09:11] Toronto#6
+[2026/03/06 09:18] Tokyo#4
+[2026/03/06 09:21] Sydney#3
+[2026/03/06 09:31] Frankfurt#4
+[2026/03/06 09:35] Paris#2
+[2026/03/06 09:43] Seattle#2
+[2026/03/06 09:46] Paris#5
+[2026/03/06 09:53] Paris#3
+[2026/03/06 09:58] Seattle#1
+[2026/03/06 10:03] Stpetersburg#2
+[2026/03/06 10:04] Losangeles#2
+[2026/03/06 10:05] Paris#1
+[2026/03/06 10:06] Singapore#7
+[2026/03/06 10:07] Atlanta#5
+[2026/03/06 10:09] Miami#4
+[2026/03/06 10:14] Chicago#2
+[2026/03/06 10:19] Losangeles#3
+[2026/03/06 10:20] Frankfurt#3
+[2026/03/06 10:32] Miami#3
+[2026/03/06 10:38] Singapore#3
+[2026/03/06 10:41] Dallas#5
+[2026/03/06 10:41] Siliconvalley#3
+[2026/03/06 10:49] Newyork#3
+[2026/03/06 10:52] Toronto#4
+[2026/03/06 10:52] Singapore#6
+[2026/03/06 10:52] Saopaulo#4
+[2026/03/06 10:53] Saopaulo#2
+[2026/03/06 10:56] Mumbai#2
+[2026/03/06 10:57] Frankfurt#2
+[2026/03/06 10:58] Newyork#1
+[2026/03/06 11:02] Sydney#1
+[2026/03/06 11:15] Mumbai#3
+[2026/03/06 11:16] Saopaulo#1
+[2026/03/06 11:16] Tokyo#1
+[2026/03/06 11:18] Tokyo#3
+[2026/03/06 11:19] Tokyo#2
+[2026/03/06 11:26] Dallas#3
+[2026/03/06 11:27] Stpetersburg#1
+[2026/03/06 11:33] Saopaulo#3
+[2026/03/06 11:34] Toronto#1
+[2026/03/06 11:34] Atlanta#3
+[2026/03/06 11:39] Atlanta#4
+[2026/03/06 11:40] Frankfurt#5
+[2026/03/06 11:42] Toronto#2
+[2026/03/06 11:45] Toronto#5
+[2026/03/06 11:46] Chicago#4
+[2026/03/06 11:55] Siliconvalley#4
+[2026/03/06 12:02] Toronto#3
+[2026/03/06 12:05] Singapore#5
+[2026/03/06 12:05] Dallas#1
+[2026/03/06 12:06] Singapore#1
+[2026/03/06 12:08] Singapore#9
+[2026/03/06 12:11] Siliconvalley#2
+[2026/03/06 12:24] Siliconvalley#1
+[2026/03/06 12:38] Dallas#2
+[2026/03/06 12:49] Frankfurt#7
+[2026/03/06 12:52] Atlanta#1
+[2026/03/06 12:58] Singapore#2
+[2026/03/06 13:00] Singapore#8
+[2026/03/06 13:04] Stpetersburg#4
+[2026/03/06 13:06] Atlanta#6
+[2026/03/06 13:06] Chicago#3
+[2026/03/06 13:08] Mumbai#1
+[2026/03/06 13:09] Chicago#5
+[2026/03/06 13:15] Frankfurt#1
+[2026/03/06 13:23] Paris#6
+[2026/03/06 13:25] Newyork#2
+[2026/03/06 13:50] Losangeles#1
+[2026/03/06 13:58] Dallas#4
+[2026/03/06 14:04] Newyork#4
+[2026/03/06 14:04] Paris#4
+[2026/03/06 14:07] Atlanta#2
+[2026/03/06 14:23] Miami#1
+[2026/03/06 14:24] Seattle#3
+[2026/03/06 14:30] Chicago#1
+[2026/03/06 14:30] Singapore#4
+[2026/03/06 14:34] Miami#2
+[2026/03/06 14:37] Stpetersburg#3
+[2026/03/06 14:39] Frankfurt#6
+[2026/03/06 14:41] Sydney#2
+[2026/03/06 14:49] Toronto#6
+[2026/03/06 14:56] Tokyo#4
+[2026/03/06 14:59] Sydney#3
+[2026/03/06 15:09] Frankfurt#4
+[2026/03/06 15:13] Paris#2
+[2026/03/06 15:22] Seattle#2
+[2026/03/06 15:24] Paris#5
+[2026/03/06 15:31] Paris#3
+[2026/03/06 15:36] Seattle#1
+[2026/03/06 15:42] Stpetersburg#2
+[2026/03/06 15:42] Losangeles#2
+[2026/03/06 15:43] Paris#1
+[2026/03/06 15:44] Singapore#7
+[2026/03/06 15:45] Atlanta#5
+[2026/03/06 15:48] Miami#4
+[2026/03/06 15:53] Chicago#2
+[2026/03/06 15:57] Losangeles#3
+[2026/03/06 15:59] Frankfurt#3
+[2026/03/06 16:10] Miami#3
+[2026/03/06 16:17] Singapore#3
+[2026/03/06 16:19] Dallas#5
+[2026/03/06 16:19] Siliconvalley#3
+[2026/03/06 16:28] Newyork#3
+[2026/03/06 16:30] Singapore#6
+[2026/03/06 16:30] Saopaulo#4
+[2026/03/06 16:30] Toronto#4
+[2026/03/06 16:31] Saopaulo#2
+[2026/03/06 16:35] Mumbai#2
+[2026/03/06 16:35] Frankfurt#2
+[2026/03/06 16:36] Newyork#1
+[2026/03/06 16:40] Sydney#1
+[2026/03/06 16:54] Mumbai#3
+[2026/03/06 16:54] Saopaulo#1
+[2026/03/06 16:55] Tokyo#1
+[2026/03/06 16:56] Tokyo#3
+[2026/03/06 16:57] Tokyo#2
+[2026/03/06 17:04] Dallas#3
+[2026/03/06 17:05] Stpetersburg#1
+[2026/03/06 17:11] Saopaulo#3
+[2026/03/06 17:12] Toronto#1
+[2026/03/06 17:13] Atlanta#3
+[2026/03/06 17:17] Atlanta#4
+[2026/03/06 17:18] Frankfurt#5
+[2026/03/06 17:21] Toronto#2
+[2026/03/06 17:24] Toronto#5
+[2026/03/06 17:24] Chicago#4
+[2026/03/06 17:33] Siliconvalley#4
+[2026/03/06 17:40] Toronto#3
+[2026/03/06 17:43] Singapore#5
+[2026/03/06 17:43] Dallas#1
+[2026/03/06 17:45] Singapore#1
+[2026/03/06 17:47] Singapore#9
+[2026/03/06 17:49] Siliconvalley#2
+[2026/03/06 18:02] Siliconvalley#1
+[2026/03/06 18:16] Dallas#2
+[2026/03/06 18:27] Frankfurt#7
+[2026/03/06 18:30] Atlanta#1
+[2026/03/06 18:37] Singapore#2
+[2026/03/06 18:38] Singapore#8
+[2026/03/06 18:42] Stpetersburg#4
+[2026/03/06 18:44] Chicago#3
+[2026/03/06 18:45] Atlanta#6
+[2026/03/06 18:46] Mumbai#1
+[2026/03/06 18:48] Chicago#5
+[2026/03/06 18:53] Frankfurt#1
+[2026/03/06 19:01] Paris#6
+[2026/03/06 19:03] Newyork#2
+[2026/03/06 19:28] Losangeles#1
+[2026/03/06 19:36] Dallas#4
+[2026/03/06 19:42] Newyork#4
+[2026/03/06 19:42] Paris#4
+[2026/03/06 19:45] Atlanta#2
+[2026/03/06 20:01] Miami#1
+[2026/03/06 20:02] Seattle#3
+[2026/03/06 20:08] Chicago#1
+[2026/03/06 20:09] Singapore#4
+[2026/03/06 20:13] Miami#2
+[2026/03/06 20:16] Stpetersburg#3
+[2026/03/06 20:17] Frankfurt#6
+[2026/03/06 20:20] Sydney#2
+[2026/03/06 20:27] Toronto#6
+[2026/03/06 20:35] Tokyo#4
+[2026/03/06 20:38] Sydney#3
+[2026/03/06 20:48] Frankfurt#4
+[2026/03/06 20:51] Paris#2
+[2026/03/06 21:00] Seattle#2
+[2026/03/06 21:03] Paris#5
+[2026/03/06 21:09] Paris#3
+`;
+
+  const INTERVAL_MS = 338 * 60 * 1000;
+  let serverBaseTimes = {};
+  let currentSort = { col: 'time', asc: true };
+
+  function handleSort(col) {
+    if (currentSort.col === col) {
+      currentSort.asc = !currentSort.asc;
+    } else {
+      currentSort.col = col;
+      currentSort.asc = true;
+    }
+    document.getElementById('icon-server').innerText = '';
+    document.getElementById('icon-time').innerText = '';
+    document.getElementById('icon-countdown').innerText = '';
+    
+    const iconText = currentSort.asc ? '▲' : '▼';
+    if (col === 'server') document.getElementById('icon-server').innerText = iconText;
+    if (col === 'time') document.getElementById('icon-time').innerText = iconText;
+    updateGolemTable();
+  }
+
+  function initGolemTracker() {
+    const lines = rawLogData.trim().split('\n');
+    const regex = /\[(\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2})\]\s(.*)/;
+    lines.forEach(line => {
+      const match = line.match(regex);
+      if (match) {
+        const timeMs = new Date(match[1]).getTime();
+        const server = match[2].trim();
+        if (!serverBaseTimes[server] || timeMs > serverBaseTimes[server]) {
+          serverBaseTimes[server] = timeMs;
+        }
+      }
+    });
+    updateGolemTable();
+    setInterval(updateGolemTable, 1000);
+  }
+
+  function updateGolemTable() {
+    if(!document.getElementById('section-tracker').classList.contains('active')) return;
+
+    const now = Date.now();
+    const results = [];
+    for (const [server, baseTime] of Object.entries(serverBaseTimes)) {
+      let nextSpawn = baseTime;
+      while (nextSpawn <= now) { nextSpawn += INTERVAL_MS; }
+      results.push({ server, nextSpawn, diffMs: nextSpawn - now });
+    }
+
+    results.sort((a, b) => {
+      if (currentSort.col === 'server') {
+        const sA = a.server.toLowerCase(), sB = b.server.toLowerCase();
+        if (sA < sB) return currentSort.asc ? -1 : 1;
+        if (sA > sB) return currentSort.asc ? 1 : -1;
+        return 0;
+      } else {
+        return currentSort.asc ? a.diffMs - b.diffMs : b.diffMs - a.diffMs;
+      }
+    });
+
+    const tbody = document.getElementById('golem-tbody');
+    tbody.innerHTML = '';
+    const filterText = document.getElementById('golem-search-input').value.toLowerCase();
+
+    results.forEach(item => {
+      if (!item.server.toLowerCase().includes(filterText)) return;
+      const tr = document.createElement('tr');
+      const d = new Date(item.nextSpawn);
+      const timeStr = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+      
+      const totalSec = Math.floor(item.diffMs / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      const countStr = `${h}h ${m}m ${s}s`;
+
+      let colorClass = 'green';
+      if (totalSec <= 1800) colorClass = 'red';
+      else if (totalSec <= 3600) colorClass = 'yellow';
+
+      tr.innerHTML = `
+        <td class="golem-server-name">${item.server}</td>
+        <td class="golem-time-large">${timeStr}</td>
+        <td><span class="countdown ${colorClass}">${countStr}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ==========================================
+  // Initialization
+  // ==========================================
+  window.onload = () => {
+    // Simulator Init
+    const animalSelect = document.getElementById('animal-select');
+    Object.keys(animals).sort().forEach(name => animalSelect.add(new Option(name, name)));
+    animalSelect.selectedIndex = Object.keys(animals).sort().indexOf("Fire Dragon") !== -1 ? Object.keys(animals).sort().indexOf("Fire Dragon") : 0;
+    animalSelect.addEventListener('change', updateSimApp);
+    
+    document.getElementById('sim-search-input').addEventListener('input', function() {
+      const filter = this.value.toLowerCase();
+      document.querySelectorAll('#attack-tbody tr, #defense-tbody tr').forEach(row => {
+        row.style.display = row.children[0].innerText.toLowerCase().includes(filter) ? '' : 'none';
+      });
+    });
+    
+    buildTypeChart();
+    updateSimApp();
+
+    // Tracker Init
+    document.getElementById('golem-search-input').addEventListener('input', updateGolemTable);
+    initGolemTracker();
+  };
 </script>
 
 </body>
